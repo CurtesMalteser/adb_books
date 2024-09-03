@@ -1,0 +1,27 @@
+.fullStyled,
+.halfStyled {
+    font-size: 24px;
+    display: inline-block;
+    color: #007bff;
+}
+
+.halfStyled {
+    position: relative;
+}
+ 
+.halfStyled:before {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    content: attr(data-content);
+    width: 50%;
+    overflow: hidden;
+}
+
+.oneLine {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
