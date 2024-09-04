@@ -4,10 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import mapped_column
 
 username = os.environ.get('USER') or os.environ.get('USERNAME')
-database_path = os.environ.get('DB_PATH')
-database_path = database_path.replace('USER', username)
-
-print(f'database_path: {database_path}')
+db_path = os.environ.get('DB_PATH')
+db_path = db_path.replace('USER', username)
 
 db = SQLAlchemy()
 
@@ -15,7 +13,7 @@ db = SQLAlchemy()
 setup_db(app)
     binds a flask application and a SQLAlchemy service
 '''
-def setup_db(app, database_path=database_path):
+def setup_db(app, database_path=db_path):
     with app.app_context():
       app.config["SQLALCHEMY_DATABASE_URI"] = database_path
       app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
