@@ -30,13 +30,12 @@ export const update = (id: number, shelf: string) =>
   }).then((res) => res.json());
 
 export const search = (query: string, maxResults: number) =>
-  fetch(`${api}/search`, {
-    method: "POST",
+  fetch(`${api}/search/shelves?q=${query}&limit=${maxResults}`, {
+    method: "GET",
     headers: {
       ...headers,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ query, maxResults }),
   })
     .then((res) => res.json())
     .then((data) => data.books);

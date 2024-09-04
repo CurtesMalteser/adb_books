@@ -20,6 +20,13 @@ from app.exceptions.invalid_request_error import InvalidRequestError
 api_key = os.environ.get('ISBNDB_KEY')
 
 def books(user_agent):
+    """
+    :param user_agent: The user agent string to be used in the request headers.
+    :type user_agent: str
+
+    :return: JSON array of books if the request is successful, or aborts with an error response.
+    :rtype: list or flask.Response
+    """
     query = request.args.get('q')
     page = request.args.get('page', default=DEFAULT_PAGE)
     limit = request.args.get('limit', default=DEFAULT_LIMIT)

@@ -2,13 +2,27 @@ from flask import (
     jsonify,
     abort,
 )
+
+from app.config import DEFAULT_PAGE, DEFAULT_LIMIT
 from app.models.book import Book
 
 
 def paginate(request, query):
-    page = request.args.get('page', 1, type=int)
-    size = request.args.get('size', 10, type=int)
-    size = size if size <= 10 else 10
+    """
+    Parses the query parameters from the received request and fetches book results from the database.
+
+    :param request: The incoming HTTP request that may contain query parameters.
+    :type request: flask.Request
+    :param query: The query object used to fetch results from the database.
+    :type query: BookDto
+
+    :return: A JSON response containing the success status, book data, pagination details, and total results.
+    :rtype: flask.Response or None
+    """
+
+    page = request.args.get('page', DEFAULT_PAGE, type=int)
+    size = request.args.get('limit', DEFAULT_LIMIT, type=int)
+    size = size if size <= DEFAULT_LIMIT else DEFAULT_LIMIT
     start = (page - 1) * size
     end = start + size
 
