@@ -1,9 +1,9 @@
 import { useState, useContext } from 'react';
-import { search } from '../utils/BooksAPI';
-import BookShelf from '../components/books/BookShelf';
-import Book from '../components/books/Book';
+import { search } from '../../utils/BooksAPI';
+import BookShelf from '../../components/books/BookShelf';
+import Book from '../../components/books/Book';
 import Container from 'react-bootstrap/Container';
-import { BookShelfContext } from '../store/BookShelfContext';
+import { BookShelfContext } from '../../store/BookShelfContext';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';

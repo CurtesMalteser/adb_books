@@ -5,7 +5,7 @@ import RouteLayout from './pages/RootLayout';
 import ErrorPage from './pages/ErrorPage';
 import BookDetails from './pages/BookDetails';
 import { loader as bookLoader } from './pages/BookDetails';
-import BookSearch from './pages/BookSearch';
+import BookSearch from './features/shelves/BookSearch';
 import BookShelfContextProvider from './store/BookShelfContext';
 
 
