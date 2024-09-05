@@ -1,3 +1,5 @@
+import { parseBook } from "../components/books/Book";
+
 const api = process.env.BOOKS_API_URL || 'http://127.0.0.1:5000'
 
 let token = localStorage.token;
@@ -29,13 +31,22 @@ export const update = (id: string, shelf: string) =>
     body: JSON.stringify({ shelf }),
   }).then((res) => res.json());
 
-export const search = (query: string, maxResults: number) =>
+export const searchSelves = (query: string, maxResults: number) =>
   fetch(`${api}/search/shelves?q=${query}&limit=${maxResults}`, {
     method: "GET",
     headers: {
       ...headers,
       "Content-Type": "application/json",
     },
-  })
-    .then((res) => res.json())
+  }).then((res) => res.json())
     .then((data) => data.books);
+
+export const searchBooks = (query: string, maxResults: number) =>
+  fetch(`${api}/search/books?q=${query}&limit=${maxResults}`, {
+    method: "GET",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json())
+    .then((data) => data.books.map((book: any) => parseBook(book)));

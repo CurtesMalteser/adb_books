@@ -41,7 +41,7 @@ interface Book {
 export function parseBook(data: any): Book {
     return {
         ...data,
-        datePublished: data.date_published
+        datePublished: data.date_published,
     };
 }
 

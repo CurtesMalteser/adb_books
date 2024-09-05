@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { search } from '../../utils/BooksAPI';
+import { searchBooks } from '../../utils/BooksAPI';
 import BookShelf from '../../components/books/BookShelf';
 import Book from '../../components/books/Book';
 import Container from 'react-bootstrap/Container';
@@ -20,16 +20,12 @@ function BookSearch() {
     const searchHandler = async (searchTerm: string) => {
         setSearchTerm(searchTerm)
         try {
-            const response = await search(searchTerm, 100);
+            const response = await searchBooks(searchTerm, 20);
 
             if (response?.error || response?.items === 0) {
                 setSearchResults([])
             } else {
-                const sortedBooks = response.map((book: Book) => {
-                    const found = books.find((shelvedBook: Book) => shelvedBook.id === book.id)
-                    if (found) { book.shelf = found.shelf }
-                    return book
-                })
+                const sortedBooks = response.map((book: Book) => book)
 
                 setSearchResults(sortedBooks)
             }
@@ -55,6 +51,12 @@ function BookSearch() {
                 </Col>
             </Row>
             {(searchResults?.length > 0) && <div style={{ marginTop: 20 }}>
+                {
+                    /*
+                    TODO make a BookUI or something similar and map only what the UI expects her
+                    -> BookShelfContext replace with slices as arg to query search/books and search/shelves
+                    */
+                }
                 <BookShelf title={`Search Results: ${searchResults.length}`} books={searchResults} />
             </div>}
         </Container>
