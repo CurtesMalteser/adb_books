@@ -127,7 +127,7 @@ class BookManagementApiTestCase(unittest.TestCase):
 
         res = self.client().get('/books')
         books = res.get_json().get('books')
-        books = map(lambda d : Book.fromDict(d = d), books)
+        books = map(lambda d : Book.from_json(d = d), books)
         book = next(filter(lambda b: b.id == book_id, books))
 
         self.assertEqual(book_rating, book.rating)
@@ -146,7 +146,7 @@ class BookManagementApiTestCase(unittest.TestCase):
         res = self.client().post('/books', data='{"search": "ok 1"}', content_type='application/json')
 
         books = res.get_json().get('books')
-        books = map(lambda d : Book.fromDict(d = d), books)        
+        books = map(lambda d : Book.from_json(d = d), books)
 
         self.assertEqual(200, res.status_code)
         self.assertEqual(3, len(list(books)))

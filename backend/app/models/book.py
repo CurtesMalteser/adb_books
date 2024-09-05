@@ -1,13 +1,15 @@
-from dataclasses import dataclass, asdict
+"""
+Book model
+"""
+from dataclasses import dataclass
 
 
-def _get_from_authors_or_raise(d: dict[str, str]) -> list[str]:
+def _get_from_authors_or_raise(key, d: dict[str, str]) -> list[str]:
     """
     :param d: Book JSON dictionary
     :return: list of authors
     :rtype: list[str]
     """
-    key = 'authors'
     value = d.get(key)
 
     if isinstance(value, list):
@@ -42,6 +44,7 @@ class Book:
     """
     A class to represent a book with serialization to/from JSON and DTO.
     """
+    id: str
     isbn: str
     isbn13: str
     title: str
@@ -53,6 +56,10 @@ class Book:
     language: str
     publisher: str | None
     date_published: str | None
+    shelf: str | None
+    synopsis: str | None
+    pages: int | None
+    subjects: list[str]
 
     def __init__(self,
                  isbn: str,
@@ -66,7 +73,12 @@ class Book:
                  language: str,
                  publisher: str | None,
                  date_published: str | None,
+                 shelf: str | None,
+                 synopsis: str | None,
+                 pages: int | None,
+                 subjects: list[str],
                  ):
+        self.id = isbn
         self.isbn = isbn
         self.isbn13 = isbn13
         self.title = title
@@ -78,6 +90,10 @@ class Book:
         self.language = language
         self.publisher = publisher
         self.date_published = date_published
+        self.shelf = shelf
+        self.synopsis = synopsis
+        self.pages = pages
+        self.subjects = subjects
 
     @classmethod
     def from_json(cls, d: dict[str, str]):
@@ -90,13 +106,17 @@ class Book:
             isbn13= _get_from_key_or_raise(key='isbn13', d=d),
             title= _get_from_key_or_raise(key='title', d=d),
             subtitle= _get_from_key_or_raise(key='title_long', d=d),
-            authors= _get_from_authors_or_raise(d=d),
+            authors= _get_from_authors_or_raise(key='authors', d=d),
             image= _get_from_key_or_raise(key='image', d=d),
             rating= _get_optional_float_or_raise(key='rating', d=d),
             msrp= _get_optional_float_or_raise(key='msrp', d=d),
             language= _get_from_key_or_raise(key='language', d=d),
             publisher= d.get('date_published', None),
             date_published = d.get('date_published', None),
+            shelf = d.get('shelf', None),
+            synopsis = d.get('synopsis', None),
+            pages = d.get('pages', None),
+            subjects= d.get('subjects', []) if d.get('subjects') else None,
             )
     # TODO: implement new types on BookDto and migrate table
     # @classmethod
