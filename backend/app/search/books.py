@@ -1,3 +1,4 @@
+import os
 from flask import (
     request,
     jsonify,
@@ -11,10 +12,12 @@ from requests import (
 
 from app.config import (
     SEARCH_ENDPOINT,
-    DEFAULT_SEARCH_FIELDS, DEFAULT_PAGE, DEFAULT_LIMIT,
+    DEFAULT_PAGE,
+    DEFAULT_LIMIT,
 )
 from app.exceptions.invalid_request_error import InvalidRequestError
 
+api_key = os.environ.get('ISBNDB_KEY')
 
 def books(user_agent):
     query = request.args.get('q')
@@ -24,10 +27,11 @@ def books(user_agent):
     if not query:
         raise  InvalidRequestError(message="Missing 'q' parameter", code=400)
 
-    url = f'{SEARCH_ENDPOINT}?q={query}&fields={DEFAULT_SEARCH_FIELDS}&page={page}&limit={limit}'
+    url = f'{SEARCH_ENDPOINT}/{query}?page={page}&pageSize={limit}'
 
     headers = {
-        "User-Agent": f'{user_agent}'
+        "User-Agent": user_agent,
+        "Authorization": api_key
     }
 
     try:

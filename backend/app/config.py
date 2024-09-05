@@ -1,8 +1,6 @@
-BASE_URL='https://openlibrary.org'
+BASE_URL='https://api2.isbndb.com'
 
-SEARCH_ENDPOINT = f"{BASE_URL}/search.json"
+SEARCH_ENDPOINT = f"{BASE_URL}/books"
 
-# Default fields for search results
-DEFAULT_SEARCH_FIELDS = "key,title,author_name,author_key,edition_key,subject"
 DEFAULT_PAGE = 1
 DEFAULT_LIMIT = 20
