@@ -9,6 +9,9 @@ function NavMenu() {
         <Nav.Link as={Link} to="/" eventKey="home">Home</Nav.Link>
       </Nav.Item>
       <Nav.Item>
+        <Nav.Link as={Link} to="/my-booklist" eventKey="my-book-list">My Booklist</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
         <Nav.Link as={Link} to="/search" eventKey="search">Search</Nav.Link>
       </Nav.Item>
     </Nav>

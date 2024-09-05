@@ -7,6 +7,7 @@ import BookDetails from './pages/BookDetails';
 import { loader as bookLoader } from './pages/BookDetails';
 import BookSearch from './features/shelves/BookSearch';
 import BookShelfContextProvider from './store/BookShelfContext';
+import MyBookList from './features/booklist/MyBooklist';
 
 
 const router = createBrowserRouter([
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/my-booklist', element: <MyBookList /> },
       {
         path: '/book/:id',
         element: <BookDetails />,
