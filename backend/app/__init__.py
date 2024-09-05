@@ -68,7 +68,7 @@ def create_app(test_config=None):
             if request.is_json:
                 try:
                     json_data = json.dumps(request.json)
-                    book = json.loads(json_data, object_hook = lambda d : Book.fromDict(d = d))
+                    book = json.loads(json_data, object_hook = lambda d : Book.from_json(d = d))
 
                 
                     BookDto(bookId = book.id, title=book.title, author= book.author, rating= book.rating).insert()

@@ -35,12 +35,18 @@ def paginate(request, query):
 
     total_results = len(data_books)
     data_books = map(lambda book: Book(
-        id=book.bookId,
-        title=book.title,
-        author=book.author,
-        rating=book.rating
-    ), data_books
-                     )
+        isbn = book.isbn,
+        isbn13 = book.isbn13,
+        title = book.title,
+        subtitle = book.subtitle,
+        authors = book.authors,
+        image = book.image,
+        rating = book.rating,
+        msrp = book.msrp,
+        language = book.language,
+        publisher = book.publisher,
+        date_published = book.date_published,
+    ), data_books)
 
     data_books = list(data_books)[start:end]
 
@@ -49,7 +55,7 @@ def paginate(request, query):
             'success': True,
             'books': data_books,
             'page': page,
-            'page_size': size,
+            'limit': size,
             'total_results': total_results
         })
     else:
