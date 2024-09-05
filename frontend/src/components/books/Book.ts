@@ -20,21 +20,29 @@ export enum Shelf {
 }
 
 interface Book {
-    id: number;
+    id: string;
     title: string;
     subtitle: string;
-    authors?: [string];
-    publishedDate: number;
-    categories?: [string];
-    imageLinks: ImageLinks;
-    industryIdentifiers: [IndustryIdentifier];
+    authors: string[];
+    datePublished?: string
+    subjects?: string[];
+    image?: string;
     shelf?: Shelf;
-    publisher: string;
-    description: string;
-    pageCount: number;
-    averageRating: number;
-    ratingsCount: number;
+    publisher?: string;
+    rating: number;
+    synopsis: string;
+    pages: number;
+    msrp: number;
+    isbn: string;
+    isbn13: string;
     language: string;
+}
+
+export function parseBook(data: any): Book {
+    return {
+        ...data,
+        datePublished: data.date_published
+    };
 }
 
 export default Book;

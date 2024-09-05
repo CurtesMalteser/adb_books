@@ -5,30 +5,30 @@ import { BookShelfContext } from '../../store/BookShelfContext';
 
 
 function MyBooklist() {
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const { books, setBooks } = useContext(BookShelfContext)
+  // const [isLoading, setIsLoading] = useState<boolean>(true)
+  // const { books, setBooks } = useContext(BookShelfContext)
 
-  useEffect(() => {
-    async function fetchBooks() {
-      const data = await getAll()
-      setBooks(data.books)
-      setIsLoading(false)
-    }
+  // useEffect(() => {
+  //   async function fetchBooks() {
+  //     const data = await getAll()
+  //     setBooks(data.books)
+  //     setIsLoading(false)
+  //   }
 
-    if (books.length > 0) {
-      setIsLoading(false)
-    } else {
+  //   if (books.length > 0) {
+  //     setIsLoading(false)
+  //   } else {
 
-      fetchBooks()
-    }
-  }, [books, setBooks])
+  //     fetchBooks()
+  //   }
+  // }, [books, setBooks])
 
 
   return (
     <>
       <h1>WIP - Implementing Auth</h1>
-      {isLoading && <h1>Loading...</h1>}
-      {!isLoading && <BooksList />}
+      {/* {isLoading && <h1>Loading...</h1>}
+      {!isLoading && <BooksList />} */}
     </>
   );
 

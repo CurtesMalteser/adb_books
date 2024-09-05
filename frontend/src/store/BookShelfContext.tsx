@@ -13,7 +13,7 @@ export default function BookShelfContextProvider({ children }: { children: React
   const [books, setBooks] = useState<Book[]>([])
 
   function addToShelf(book: Book) {
-    const index = books.findIndex(b => b.id === book.id)
+    const index = books.findIndex(b => b.isbn === book.isbn)
     if(index === -1) {
       setBooks([...books, book])
     } else {
