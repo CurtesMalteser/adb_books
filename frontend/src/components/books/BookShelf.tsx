@@ -3,13 +3,17 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Book from './Book';
 import BookCard from './BookCard';
-import { BookShelfContext } from '../../store/BookShelfContext';
 import { update } from '../../utils/BooksAPI';
 
 
 function BookShelf({ title, books }: { title: string, books: Array<Book> }) {
 
-    const { addToShelf } = useContext(BookShelfContext)
+    const addToShelf = (book: Book) => {
+        console.group('📚 Book added to shelf')
+        console.log('Implement the logic to add the book to the shelf')
+        console.log(book)
+        console.groupEnd()
+    }
 
     function addToaddBooksToShelf(book: Book) {
         async function addBooksToShelf() {

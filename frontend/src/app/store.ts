@@ -1,7 +1,9 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import booksReducer from '../features/home/booksSlice';
 
 export const store = configureStore({
   reducer: {
+    searchBooks: booksReducer,
   },
 });
 

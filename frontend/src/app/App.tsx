@@ -6,7 +6,6 @@ import ErrorPage from '../pages/ErrorPage';
 import BookDetails from '../pages/BookDetails';
 import { loader as bookLoader } from '../pages/BookDetails';
 import BookSearch from '../features/shelves/BookSearch';
-import BookShelfContextProvider from '../store/BookShelfContext';
 import MyBookList from '../features/booklist/MyBooklist';
 
 
@@ -33,9 +32,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <BookShelfContextProvider>
-      <RouterProvider router={router} />
-    </BookShelfContextProvider>
+    <RouterProvider router={router} />
   )
 }
 

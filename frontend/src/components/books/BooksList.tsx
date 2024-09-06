@@ -3,26 +3,24 @@ import Container from 'react-bootstrap/Container';
 import BookShelf from './BookShelf';
 import splitBooksByShelf from '../../utils/BooksSorter';
 import Book from './Book';
-import { BookShelfContext } from '../../store/BookShelfContext';
 
 function BooksList() {
 
-    const { books } = useContext(BookShelfContext)
 
     const [readBooks, setReadBooks] = useState<Book[]>([])
     const [wantToRead, setWantToRead] = useState<Book[]>([])
 
     const [currentlyReading, setCurrentlyReading] = useState<Book[]>([])
 
-    useEffect(() => {
-        function addBooksToShelf() {
-            const { read, currentlyReading, wantToRead } = splitBooksByShelf(books)
-            setReadBooks(read)
-            setCurrentlyReading(currentlyReading)
-            setWantToRead(wantToRead)
-        }
-        addBooksToShelf()
-    }, [books])
+    // useEffect(() => {
+    //     function addBooksToShelf() {
+    //         const { read, currentlyReading, wantToRead } = splitBooksByShelf(books)
+    //         setReadBooks(read)
+    //         setCurrentlyReading(currentlyReading)
+    //         setWantToRead(wantToRead)
+    //     }
+    //     addBooksToShelf()
+    // }, [books])
 
 
 
