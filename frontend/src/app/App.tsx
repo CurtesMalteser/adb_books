@@ -5,27 +5,23 @@ import RouteLayout from '../pages/RootLayout';
 import ErrorPage from '../pages/ErrorPage';
 import BookDetails from '../pages/BookDetails';
 import { loader as bookLoader } from '../pages/BookDetails';
-import BookSearch from '../features/shelves/BookSearch';
 import MyBookList from '../features/booklist/MyBooklist';
+import ROUTES from '../constants/Routes';
 
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: ROUTES.HOME,
     element: <RouteLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/my-booklist', element: <MyBookList /> },
+      { path: ROUTES.HOME, element: <HomePage /> },
+      { path: ROUTES.MY_BOOKLIST, element: <MyBookList /> },
       {
-        path: '/book/:id',
+        path: ROUTES.BOOK_DETAILS,
         element: <BookDetails />,
         loader: bookLoader
       },
-      {
-        path: '/search',
-        element: <BookSearch />
-      }
     ]
   },
 ])
