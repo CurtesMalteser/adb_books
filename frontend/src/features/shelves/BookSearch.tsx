@@ -1,28 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import BookShelf from '../../components/books/BookShelf';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { booksSelector, searchBooksAsync } from '../home/booksSlice';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { debounceTime, Subject } from 'rxjs';
+import { RootState } from '../../app/store';
+import Book from '../../components/books/Book';
 
+interface BookSearchProps {
+    searchSubject: Subject<string>;
+    searchThunk: (params: { searchTerm: string; maxResults: number }) => any;
+    booksSelector: (state: RootState) => Book[];
+}
 
-function BookSearch() {
+const BookSearch: React.FC<BookSearchProps> = ({ searchSubject, booksSelector, searchThunk }) => {
 
     const dispatch = useAppDispatch();
     const books = useAppSelector(booksSelector);
 
-    const [searchTerm, setSearchTerm] = useState('')
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const searchHandler = async (searchTerm: string) => {
-        setSearchTerm(searchTerm)
-        dispatch(searchBooksAsync({ searchTerm, maxResults: 20 }))
-        .then((response: any) => {
-            console.log(response);
-        })
-    }
+    const searchHandler = async (searchTerm: string) => dispatch(searchThunk({ searchTerm, maxResults: 10 }));
+
+    useEffect(() => {
+        const subscription = searchSubject
+            .pipe(debounceTime(600))
+            .subscribe(searchHandler);
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        searchSubject.next(e.target.value);
+    };
 
     return (
         <Container style={{ marginTop: 20, marginBottom: 20, }}>
@@ -33,7 +49,7 @@ function BookSearch() {
                         type="text"
                         placeholder='Search for books...'
                         value={searchTerm}
-                        onChange={(e) => searchHandler(e.target.value)}
+                        onChange={handleInputChange}
                     />
                 </Col>
                 <Col>

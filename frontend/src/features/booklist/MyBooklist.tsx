@@ -4,6 +4,7 @@ import { getAll } from '../../utils/BooksAPI';
 
 
 function MyBooklist() {
+  // todo: set BookSearch to use the searchShelvesAsync thunk (from the shelvesSlice to be implemented) to search for books
   // const [isLoading, setIsLoading] = useState<boolean>(true)
   // const { books, setBooks } = useContext(BookShelfContext)
 
