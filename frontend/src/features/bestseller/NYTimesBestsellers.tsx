@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     fetchBestsellersAsync,
@@ -7,18 +7,13 @@ import {
     statusSelector,
 } from './NYTimesSlice';
 import Book from '../../components/books/Book';
+import BookShelf from '../../components/books/BookShelf';
 
 const showBooks = (fiction: Book[], nonFiction: Book[]) => {
     return (
         <>
-            <h3>Fiction</h3>
-            {fiction && fiction.length > 0 && (
-                fiction.map((book: Book) => <div key={book.id}>{book.title}</div>)
-            )}
-            <h3>Non-Fiction</h3>
-            {nonFiction && nonFiction.length > 0 && (
-                nonFiction.map((book: Book) => <div key={book.id}>{book.title}</div>)
-            )}
+            <BookShelf title='Fiction' books={fiction.slice(0, 3)}/>
+            <BookShelf title='Non Fiction' books={nonFiction.slice(0, 3)}/>
         </>
     )
 };
