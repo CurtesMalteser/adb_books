@@ -1,13 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import Book from "../../components/books/Book";
 
-interface Hometate {
+interface HomeState {
     books: Book[];
     loading: boolean;
     error: string | null;
 }
 
-const initialState: Hometate = {
+const initialState: HomeState = {
     books: [],
     loading: false,
     error: null

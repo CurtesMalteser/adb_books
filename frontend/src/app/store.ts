@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import booksReducer from '../features/home/booksSlice';
+import nytimesReducer from '../features/bestseller/NYTimesSlice';
 
 export const store = configureStore({
   reducer: {
     searchBooks: booksReducer,
+    nytimes: nytimesReducer,
   },
 });
 

@@ -50,3 +50,23 @@ export const searchBooks = (query: string, maxResults: number) =>
     },
   }).then((res) => res.json())
     .then((data) => data.books.map((book: any) => parseBook(book)));
+
+export const fetchNonFiction = () =>
+  fetch(`${api}/ny-times/best-sellers/non-fiction`, {
+    method: "GET",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json())
+    .then((data) => data.books.map((book: any) => parseBook(book)));
+
+export const fetchFiction = () =>
+  fetch(`${api}/ny-times/best-sellers/fiction`, {
+    method: "GET",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json())
+    .then((data) => data.books.map((book: any) => parseBook(book)));
