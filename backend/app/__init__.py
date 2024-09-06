@@ -13,6 +13,7 @@ from .exceptions.invalid_request_error import InvalidRequestError
 from .exceptions.json_error import json_error
 from .models.book import Book
 from .models.book_dto import *
+from .ny_times import ny_times_bp
 from .pagination.books import paginate
 from .search import search_bp
 
@@ -33,6 +34,7 @@ def create_app(test_config=None):
     CORS(app, resources={r"*": {"origins": "*"}})
 
     app.register_blueprint(search_bp)
+    app.register_blueprint(ny_times_bp)
 
     @app.after_request
     def after_request(response):
@@ -68,7 +70,7 @@ def create_app(test_config=None):
             if request.is_json:
                 try:
                     json_data = json.dumps(request.json)
-                    book = json.loads(json_data, object_hook = lambda d : Book.fromDict(d = d))
+                    book = json.loads(json_data, object_hook = lambda d : Book.from_json(d = d))
 
                 
                     BookDto(bookId = book.id, title=book.title, author= book.author, rating= book.rating).insert()

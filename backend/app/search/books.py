@@ -16,10 +16,18 @@ from app.config import (
     DEFAULT_LIMIT,
 )
 from app.exceptions.invalid_request_error import InvalidRequestError
+from app.models.book import Book
 
 api_key = os.environ.get('ISBNDB_KEY')
 
 def books(user_agent):
+    """
+    :param user_agent: The user agent string to be used in the request headers.
+    :type user_agent: str
+
+    :return: JSON array of books if the request is successful, or aborts with an error response.
+    :rtype: list or flask.Response
+    """
     query = request.args.get('q')
     page = request.args.get('page', default=DEFAULT_PAGE)
     limit = request.args.get('limit', default=DEFAULT_LIMIT)
@@ -37,7 +45,20 @@ def books(user_agent):
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
-        return jsonify(response.json())  # Flask's jsonify adds the correct content type headers automatically
+        json = response.json()
+        total_results = json.get('total')
+        json_books = json.get('books')
+        json_books = map(lambda d: Book.from_json(d=d), json_books)
+
+        return jsonify(
+            {
+                'success': True,
+                'books': list(json_books),
+                'page': page,
+                'limit': limit,
+                'total_results': total_results
+            }
+        )  # Flask's jsonify adds the correct content type headers automatically
 
     except JSONDecodeError:
         abort(500, description="Invalid JSON response from upstream server.")

@@ -1,0 +1,36 @@
+from flask import Blueprint
+from flask_cors import cross_origin
+
+from app.config import (
+    FICTION_PATH,
+    NON_FICTION_PATH,
+)
+from app.ny_times.books import fetch_books
+
+ny_times_bp = Blueprint('ny-times', __name__)
+
+
+@ny_times_bp.route('/ny-times/best-sellers/fiction')
+@cross_origin()
+def fetch_fiction():
+    """
+    Data provided by The New York Times.
+    For details visit: https://developer.nytimes.com.
+    Fetches "Combined Print and E-Book Fiction" list.
+    :return: JSON array of books if the request is successful, or aborts with an error response.
+    :rtype: list or flask.Response
+    """
+    return fetch_books(path=FICTION_PATH, list_name='Combined Print and E-Book Fiction')
+
+
+@ny_times_bp.route('/ny-times/best-sellers/non-fiction')
+@cross_origin()
+def fetch_non_fiction():
+    """
+    Data provided by The New York Times.
+    For details visit: https://developer.nytimes.com.
+    Fetches "Combined Print & E-Book Nonfiction" list.
+    :return: JSON array of books if the request is successful, or aborts with an error response.
+    :rtype: list or flask.Response
+    """
+    return fetch_books(path=NON_FICTION_PATH, list_name='Combined Print & E-Book Nonfiction')

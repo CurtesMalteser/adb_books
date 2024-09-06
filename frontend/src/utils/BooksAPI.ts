@@ -1,3 +1,5 @@
+import { parseBook } from "../components/books/Book";
+
 const api = process.env.BOOKS_API_URL || 'http://127.0.0.1:5000'
 
 let token = localStorage.token;
@@ -19,7 +21,7 @@ export const getBook = (id: string) =>
     .then((res) => res.json())
     .then((data) => data.book);
 
-export const update = (id: number, shelf: string) =>
+export const update = (id: string, shelf: string) =>
   fetch(`${api}/books/${id}`, {
     method: "PUT",
     headers: {
@@ -29,14 +31,42 @@ export const update = (id: number, shelf: string) =>
     body: JSON.stringify({ shelf }),
   }).then((res) => res.json());
 
-export const search = (query: string, maxResults: number) =>
-  fetch(`${api}/search`, {
-    method: "POST",
+export const searchSelves = (query: string, maxResults: number) =>
+  fetch(`${api}/search/shelves?q=${query}&limit=${maxResults}`, {
+    method: "GET",
     headers: {
       ...headers,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ query, maxResults }),
-  })
-    .then((res) => res.json())
+  }).then((res) => res.json())
     .then((data) => data.books);
+
+export const searchBooks = (query: string, maxResults: number) =>
+  fetch(`${api}/search/books?q=${query}&limit=${maxResults}`, {
+    method: "GET",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json())
+    .then((data) => data.books.map((book: any) => parseBook(book)));
+
+export const fetchNonFiction = () =>
+  fetch(`${api}/ny-times/best-sellers/non-fiction`, {
+    method: "GET",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json())
+    .then((data) => data.books.map((book: any) => parseBook(book)));
+
+export const fetchFiction = () =>
+  fetch(`${api}/ny-times/best-sellers/fiction`, {
+    method: "GET",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json())
+    .then((data) => data.books.map((book: any) => parseBook(book)));

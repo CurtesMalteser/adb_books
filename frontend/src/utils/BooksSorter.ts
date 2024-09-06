@@ -8,7 +8,9 @@ function splitBooksByShelf(books: Book[]) {
         currentlyReading: Array<Book>(),
         wantToRead: Array<Book>()
     }
-
+    // TODO: implement receive the shelf already in the book object from the backend
+    // and remove the switch statement
+    // TODO: implement slice and this function will removed
     books.forEach(book => {
         switch (book.shelf) {
             case Shelf.READ.valueOf():

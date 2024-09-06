@@ -23,7 +23,7 @@ function DropdownBookItems({ book, addToShelf }: { book: Book, addToShelf: (book
 
 function BookCard(book: Book, addToShelf: (book: Book) => void) {
 
-    const bookCover = book.imageLinks ? book.imageLinks.thumbnail : '/book-placeholder.svg'
+    const bookCover = book.image ?? '/book-placeholder.svg'
     const authors = book.authors ? book.authors.join(', ') : 'N/A'
 
     const shelfLabel = mapToLabel(book.shelf)
