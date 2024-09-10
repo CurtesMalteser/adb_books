@@ -25,5 +25,5 @@ class BookShelf(db.Model):
     """
     __tablename__ = 'book_shelves'
 
-    isbn13 = Column(String, ForeignKey('books.isb13'), primary_key=True)
+    isbn13 = Column(String, ForeignKey('books.isbn13'), primary_key=True)
     shelfID = Column(Integer, ForeignKey('shelves.shelfID'), primary_key=True)

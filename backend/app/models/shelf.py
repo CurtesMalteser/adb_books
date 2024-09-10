@@ -29,6 +29,6 @@ class Shelf(db.Model):
 
     shelfID = Column(Integer, primary_key=True)
     shelf_name = Column(String(50), nullable=False)
-    userID = Column(Integer, ForeignKey('users.userID'), nullable=False)
+    userID = Column(String, ForeignKey('users.userID'), nullable=False)
 
     books = relationship('BooksShelf', backref='shelf', lazy=True)
