@@ -14,6 +14,7 @@ from sqlalchemy import (Column,
 from sqlalchemy.orm import relationship
 
 from app.models.book_dto import db
+from app.models.book_shelf import BookShelf
 
 
 class Shelf(db.Model):
@@ -31,4 +32,4 @@ class Shelf(db.Model):
     shelf_name = Column(String(50), nullable=False)
     userID = Column(String, ForeignKey('users.userID'), nullable=False)
 
-    books = relationship('BooksShelf', backref='shelf', lazy=True)
+    books = relationship(BookShelf, backref='shelf', lazy=True)

@@ -4,15 +4,19 @@ const api = process.env.BOOKS_API_URL || 'http://127.0.0.1:5000'
 
 let token = localStorage.token;
 
-if (!token) token = localStorage.token = Math.random().toString(36).substring(-8);
+const head = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+const payload = 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBkb2UuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlIjoiYm9vazpzYXZlIn0';
+const signature = 'FB36NBKLutcaVMDnBl4y0Dwturq38L3GDAqtdgQt0dc';
+
+if (!token) token = localStorage.token = `${head}.${payload}.${signature}`;
 
 const headers = {
   Accept: "application/json",
-  Authorization: token,
+  Authorization: `Bearer ${token}`,
 };
 
-export const getAll = () =>
-  fetch(`${api}/books`, { headers })
+export const fetchBooklist = () =>
+  fetch(`${api}/booklist`, { headers })
     .then((res) => res.json())
     .then((data) => data);
 
@@ -31,7 +35,7 @@ export const update = (id: string, shelf: string) =>
     body: JSON.stringify({ shelf }),
   }).then((res) => res.json());
 
-export const searchSelves = (query: string, maxResults: number) =>
+export const searchShelves = (query: string, maxResults: number) =>
   fetch(`${api}/search/shelves?q=${query}&limit=${maxResults}`, {
     method: "GET",
     headers: {

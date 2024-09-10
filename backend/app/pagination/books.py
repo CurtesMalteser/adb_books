@@ -44,13 +44,10 @@ def paginate(request, query):
 
     data_books = list(data_books)[start:end]
 
-    if len(data_books) > 0:
-        return jsonify({
-            'success': True,
-            'books': data_books,
-            'page': page,
-            'limit': size,
-            'total_results': total_results
-        })
-    else:
-        return None
+    return jsonify({
+        'success': True,
+        'books': data_books,
+        'page': page,
+        'limit': size,
+        'total_results': total_results
+    })

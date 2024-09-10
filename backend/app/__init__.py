@@ -9,13 +9,19 @@ from flask_cors import (
     CORS,
     cross_origin,
     )
+
+from .booklist import booklist_bp
 from .exceptions.invalid_request_error import InvalidRequestError
 from .exceptions.json_error import json_error
 from .models.book import Book
 from .models.book_dto import *
 from .ny_times import ny_times_bp
-from .pagination.books import paginate
 from .search import search_bp
+
+from .models.user import User
+from .models.shelf import Shelf
+from .models.book_shelf import BookShelf
+
 
 
 is_success : bool = True
@@ -35,6 +41,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(search_bp)
     app.register_blueprint(ny_times_bp)
+    app.register_blueprint(booklist_bp)
 
     @app.after_request
     def after_request(response):
@@ -46,23 +53,6 @@ def create_app(test_config=None):
     def index():
         return 'Healthy'
 
-    @app.route('/books')
-    @cross_origin()
-    def get_books():
-        if(is_success):
-            def query():
-                return BookDto.query.order_by(BookDto.id).all()
-
-            books = paginate(request=request, query=query)
-
-            if books is None:
-                abort(400)
-            else:
-                return books
-
-        else:
-            abort(404)
-
     @app.route('/book', methods=['POST'])
     @cross_origin()
     def add_book():
@@ -70,19 +60,20 @@ def create_app(test_config=None):
             if request.is_json:
                 try:
                     json_data = json.dumps(request.json)
-                    book = json.loads(json_data, object_hook = lambda d : Book.from_json(d = d))
+                    book = json.loads(json_data, object_hook=lambda d: Book.from_json(d=d))
 
-                
-                    BookDto(bookId = book.id, title=book.title, author= book.author, rating= book.rating).insert()
-                
+                    BookDto(isbn13=book.isbn13, title=book.title, author=book.author, rating=book.rating).insert()
+
                     return jsonify({
                         "success": True,
                         "book": book
                     })
 
+                # TODO: Define specific exceptions and use the custom error handler for 422 errors.
                 except:
                     db.session.rollback()
                     abort(422)
+
                 finally:
                     db.session.close()
 

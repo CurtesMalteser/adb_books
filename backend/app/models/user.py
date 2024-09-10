@@ -10,6 +10,8 @@ from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
 from app.models.book_dto import db
+from app.models.shelf import Shelf
+
 
 class User(db.Model):
     """
@@ -28,4 +30,4 @@ class User(db.Model):
     email = Column(String(100), unique=True, nullable=False)
 
     # Relationship to shelves
-    shelves = relationship('Shelf', backref='user', lazy=True)
+    shelves = relationship(Shelf, backref='user', lazy=True)
