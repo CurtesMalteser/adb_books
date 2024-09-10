@@ -107,7 +107,7 @@ class Book:
             isbn13=_get_from_key_or_raise(key='isbn13', d=d),
             title=_get_from_key_or_raise(key='title', d=d),
             subtitle=d.get('title_long', ''),
-            authors=d.get('authors', []) if d.get('subjects') else None,
+            authors=d.get('authors', []) if d.get('authors') else None,
             image=_get_from_key_or_raise(key='image', d=d),
             rating=_get_optional_float_or_raise(key='rating', d=d),
             msrp=_get_optional_float_or_raise(key='msrp', d=d),

@@ -75,17 +75,16 @@ class BookResponse:
     """
     A class to represent a book with serialization to/from JSON and DTO.
     """
-    id = Column(Integer, primary_key=True)
-    isbn13 = mapped_column(String, nullable=False, unique=True)
-    title = mapped_column(String, nullable=False)
-    author = mapped_column(String, nullable=False)
-    image = db.Column(String, nullable=True, default=None)
-    shelf = db.Column(String, nullable=True, default=None)
+    isbn13: str
+    title: str
+    authors: list[str]
+    image: str
+    shelf: str | None
 
-    def __init__(self, isbn13, title, author, image, shelf):
+    def __init__(self, isbn13: str, title: str, authors, image: str, shelf: str | None):
         self.isbn13 = isbn13
         self.title = title
-        self.author = author
+        self.authors = authors
         self.image = image
         self.shelf = shelf
 
@@ -98,7 +97,21 @@ class BookResponse:
         return cls(
             isbn13=_get_from_key_or_raise(key='isbn13', d=d),
             title=_get_from_key_or_raise(key='title', d=d),
-            author=d.get('authors', []) if d.get('subjects') else None,
+            authors=d.get('authors', []) if d.get('authors') else None,
             image=_get_from_key_or_raise(key='image', d=d),
             shelf=d.get('shelf', None),
+        )
+
+    @classmethod
+    def from_ny_times_json(cls, d: dict[str, str]):
+        """
+        :param d: Book JSON dictionary
+        :return: Book object
+        """
+        return cls(
+            isbn13=_get_from_key_or_raise(key='primary_isbn13', d=d),
+            title=_get_from_key_or_raise(key='title', d=d),
+            authors=[d.get('author')],
+            image=_get_from_key_or_raise(key='book_image', d=d),
+            shelf=None,
         )
