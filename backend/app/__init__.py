@@ -4,11 +4,11 @@ from flask import (
     jsonify,
     abort,
     request,
-    )
+)
 from flask_cors import (
     CORS,
     cross_origin,
-    )
+)
 
 from .booklist import booklist_bp
 from .exceptions.invalid_request_error import InvalidRequestError
@@ -23,11 +23,7 @@ from .models.shelf import Shelf
 from .models.book_shelf import BookShelf
 
 
-
-is_success : bool = True
-
 def create_app(test_config=None):
-
     app = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:
@@ -56,31 +52,29 @@ def create_app(test_config=None):
     @app.route('/book', methods=['POST'])
     @cross_origin()
     def add_book():
-        if is_success:
-            if request.is_json:
-                try:
-                    json_data = json.dumps(request.json)
-                    book = json.loads(json_data, object_hook=lambda d: Book.from_json(d=d))
+        if request.is_json:
+            try:
+                json_data = json.dumps(request.json)
+                book = json.loads(json_data, object_hook=lambda d: Book.from_json(d=d))
 
-                    BookDto(isbn13=book.isbn13, title=book.title, author=book.author, rating=book.rating).insert()
+                BookDto(isbn13=book.isbn13, title=book.title, author=book.author, shelf=book.shelf,
+                        image=book.image).insert()
 
-                    return jsonify({
-                        "success": True,
-                        "book": book
-                    })
+                return jsonify({
+                    "success": True,
+                    "book": book
+                })
 
-                # TODO: Define specific exceptions and use the custom error handler for 422 errors.
-                except:
-                    db.session.rollback()
-                    abort(422)
+            # TODO: Define specific exceptions and use the custom error handler for 422 errors.
+            except:
+                db.session.rollback()
+                abort(422)
 
-                finally:
-                    db.session.close()
+            finally:
+                db.session.close()
 
-            else:
-                abort(404, "Content type is not supported.")
         else:
-            abort(404, "Mocked failure! Call GET /success.")
+            abort(404, "Content type is not supported.")
 
     @app.route('/book/<string:book_id>')
     @cross_origin()
@@ -91,7 +85,7 @@ def create_app(test_config=None):
             book_dto = BookDto.query.filter(BookDto.bookId == str(book_id)).one_or_none()
             if isinstance(book_dto, BookDto):
                 # Ignore type cast because it checks if it is a BookDto
-                book = Book.fromDto(book_dto) # type: ignore
+                book = Book.fromDto(book_dto)  # type: ignore
             else:
                 error = True
 
@@ -110,97 +104,63 @@ def create_app(test_config=None):
                 "book": book,
             })
 
-
     @app.route('/book/<string:bookId>', methods=['DELETE'])
     @cross_origin()
     def delete_book(bookId: str):
-        if(is_success):
-            error = False
+        try:
+            book = BookDto.query.filter(BookDto.bookId == bookId).one_or_none()
+            if book is not None: book.delete()
 
-            try:
-                book = BookDto.query.filter(BookDto.bookId == bookId).one_or_none()
-                if book is None:
-                    error = True
-                else:
-                    book.delete()
-                    
-            except:
-                error = True
-                db.session.rollback()
-            finally:
-                db.session.close()
+        except:
+            db.session.rollback()
 
-            if(error):
-                abort(400)
-            else:
-               return jsonify({
-                            "sucess": True,
-                            "deleted": bookId,
-                        })
-        else:
-            abort(404, "Mocked failure! Call GET /success.")
+        finally:
+            db.session.close()
+
+        return jsonify({
+            "sucess": True,
+            "deleted": bookId,
+        })
 
     @app.route('/book/<string:book_id>', methods=['PATCH'])
     @cross_origin()
     def update_book_rating(book_id: str):
-        if(is_success):
-            if (request.is_json):
-                body = request.get_json()
-                try:
-                    book = BookDto.query.filter(BookDto.id == book_id).one_or_none()
+        if request.is_json:
+            body = request.get_json()
+            try:
+                book = BookDto.query.filter(BookDto.id == book_id).one_or_none()
 
-                    if(book is None):
-                        abort(404)
+                if book is None:
+                    abort(404)
 
-                    if('rating' in body):
-                        book.rating = int(body.get("rating"))
+                if 'rating' in body:
+                    book.rating = int(body.get("rating"))
 
-                    book.update()
+                book.update()
 
-                    return jsonify({
-                        "sucess": True,
-                        "updated": book_id,
-                        })
+                return jsonify({
+                    "sucess": True,
+                    "updated": book_id,
+                })
 
-                except:
-                    abort(400) 
-                        
-            else:
-                abort(404)
-        else:
-            abort(404, "Mocked failure! Call GET /success.")
-
-    @app.route('/success')
-    @cross_origin()
-    def is_success():
-        global is_success
-        is_success = True
-        return jsonify("isSuccess: True")
-
-    @app.route('/failure')
-    @cross_origin()
-    def is_failure():
-        global is_success
-        is_success = False
-        return jsonify("isSuccess: False")
-
+            except:
+                abort(400)
 
     @app.errorhandler(400)
     def not_there(error):
         return jsonify({
-            "success": False, 
+            "success": False,
             "error": 400,
             "message": "Bad request",
-            }), 400
+        }), 400
 
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
-            "success": False, 
+            "success": False,
             "error": 404,
             "message": "Not found",
-            }), 404
-
+        }), 404
 
     @app.errorhandler(422)
     def unprocessable(error):
@@ -216,6 +176,5 @@ def create_app(test_config=None):
     @app.errorhandler(InvalidRequestError)
     def invalid_request_error(error):
         return json_error(error.message, error.code)
-
 
     return app
