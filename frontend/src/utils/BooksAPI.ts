@@ -15,8 +15,18 @@ const headers = {
   Authorization: `Bearer ${token}`,
 };
 
-export const fetchBooklist = () =>
-  fetch(`${api}/booklist`, { headers })
+export const fetchReadBooklist = () =>
+  fetch(`${api}/booklist/read`, { headers })
+    .then((res) => res.json())
+    .then((data) => data);
+
+export const fetchWantToReadBooklist = () =>
+  fetch(`${api}/booklist/want-to-read`, { headers })
+    .then((res) => res.json())
+    .then((data) => data);
+
+export const fetchCurrentlyReadingBooklist = () =>
+  fetch(`${api}/booklist/currently-reading`, { headers })
     .then((res) => res.json())
     .then((data) => data);
 

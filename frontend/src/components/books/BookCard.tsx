@@ -7,6 +7,11 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { Shelf } from './Book';
 import { mapToLabel } from '../../utils/ShelfMapper';
 
+interface BookCardProps {
+    book: Book,
+    addToShelf: (book: Book) => void,
+}
+
 function DropdownBookItems({ book, addToShelf }: { book: Book, addToShelf: (book: Book) => void }) {
     return (
         <>
@@ -21,7 +26,7 @@ function DropdownBookItems({ book, addToShelf }: { book: Book, addToShelf: (book
     )
 }
 
-function BookCard(book: Book, addToShelf: (book: Book) => void) {
+function BookCard({ book, addToShelf }: BookCardProps) {
 
     const bookCover = book.image ?? '/book-placeholder.svg'
     const authors = book.authors ? book.authors.join(', ') : 'N/A'

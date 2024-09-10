@@ -8,12 +8,13 @@ import {
 } from './NYTimesSlice';
 import Book from '../../components/books/Book';
 import BookShelf from '../../components/books/BookShelf';
+import { Status } from '../../constants/Status';
 
 const showBooks = (fiction: Book[], nonFiction: Book[]) => {
     return (
         <>
-            <BookShelf title='Fiction' books={fiction.slice(0, 3)}/>
-            <BookShelf title='Non Fiction' books={nonFiction.slice(0, 3)}/>
+            <BookShelf key='fiction' title='Fiction' books={fiction.slice(0, 3)}/>
+            <BookShelf key='nonfiction' title='Non Fiction' books={nonFiction.slice(0, 3)}/>
         </>
     )
 };
@@ -32,8 +33,8 @@ const NYTimesBestsellers = () => {
     return (
         <>
             <h2>NY Times Bestsellers</h2>
-            {status === 'loading' && <h1>Loading...</h1>}
-            {status === 'idle' && showBooks(fiction, nonFiction)}
+            {status === Status.LOADING && <h1>Loading...</h1>}
+            {status === Status.IDLE && showBooks(fiction, nonFiction)}
         </>
     );
 };

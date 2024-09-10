@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Book from "../../components/books/Book";
-import { fetchBooklist, searchShelves } from "../../utils/BooksAPI";
+import {
+    fetchReadBooklist,
+    fetchWantToReadBooklist,
+    fetchCurrentlyReadingBooklist,
+    searchShelves,
+} from "../../utils/BooksAPI";
 import { RootState } from "../../app/store";
 import { Status } from "../../constants/Status";
+import { firstValueFrom, forkJoin, map } from "rxjs";
 
 interface Shelves {
     read: Book[];
@@ -27,10 +33,15 @@ const initialState: BooksState = {
 }
 
 export const fetchBooklistAsync = createAsyncThunk(
-    'books/searchBooks',
-    async (payload: { searchTerm: string, maxResults: number }) => {
-        const response = await fetchBooklist();
-        return response;
+    'books/fetchMyBooklist',
+    async () => {
+        return await firstValueFrom(
+            forkJoin({
+                read: fetchReadBooklist(),
+                wantToRead: fetchWantToReadBooklist(),
+                currentlyReading: fetchCurrentlyReadingBooklist(),
+            })
+        );
     }
 )
 
@@ -63,6 +74,6 @@ export const booklistSlice = createSlice({
 })
 
 export const statusSelector = (state: RootState) => state.searchBooks.status;
-export const booksSelector = (state: RootState) => state.searchBooks.books;
+export const shelvesSelector = (state: RootState) => state.myBooklist.shelves;
 
 export default booklistSlice.reducer;
