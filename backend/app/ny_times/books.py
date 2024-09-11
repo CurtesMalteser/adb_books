@@ -1,12 +1,13 @@
+import json
 import os
 from urllib.parse import urljoin
 
+import requests
 from flask import (
     request,
     jsonify,
     abort,
 )
-import requests
 from requests import (
     JSONDecodeError,
     RequestException,
@@ -15,9 +16,10 @@ from requests import (
 from app.config import (
     DEFAULT_PAGE,
     DEFAULT_LIMIT,
-    NY_TIMES_BOOKS_LIST_URL,
+    NY_TIMES_BOOKS_LIST_URL, REDIS_EXPIRY_TIME,
 )
 from app.models.book_dto import BookResponse
+from app.redis_config import redis_client
 
 api_key = os.environ.get('NYT_KEY')
 
@@ -39,22 +41,37 @@ def fetch_books(path: str):
     limit = request.args.get('limit', default=DEFAULT_LIMIT)
 
     try:
-        response = requests.get(_url(path))
-        response.raise_for_status()
-        json = response.json()
-        total_results = json.get('num_results')
-        json_books = json.get('results').get('books')
-        json_books = map(lambda d: BookResponse.from_ny_times_json(d), json_books)
 
-        return jsonify(
-            {
-                'success': True,
-                'books': list(json_books),
-                'page': page,
-                'limit': limit,
-                'total_results': total_results
-            }
-        )  # Flask's jsonify adds the correct content type headers automatically
+        bestsellers = redis_client.get(f'nyt_bestsellers_{path}')
+        if bestsellers:
+            json_books = json.loads(bestsellers)
+            return jsonify(
+                {
+                    'success': True,
+                    'books': json_books,
+                    'page': page,
+                    'limit': limit,
+                    'total_results': len(json_books)
+                }
+            )
+
+        else:
+            response = requests.get(_url(path))
+            response.raise_for_status()
+            json_response = response.json()
+            total_results = json_response.get('num_results')
+            json_books = json_response.get('results').get('books')
+            json_books = [BookResponse.from_ny_times_json(d).to_dict() for d in json_books]
+            redis_client.set(f'nyt_bestsellers_{path}', json.dumps(json_books), ex=REDIS_EXPIRY_TIME)
+            return jsonify(
+                {
+                    'success': True,
+                    'books': json_books,
+                    'page': page,
+                    'limit': limit,
+                    'total_results': total_results
+                }
+            )  # Flask's jsonify adds the correct content type headers automatically
 
     except JSONDecodeError as e:
         print(e)

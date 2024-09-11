@@ -1,5 +1,6 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+from typing import List, Optional
 
 from flask_migrate import Migrate
 from sqlalchemy import (Column,
@@ -30,7 +31,7 @@ def setup_db(app, database_path=db_path):
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app)
 
-        migrate = Migrate(app, db)  # Initialize Flask-Migrate
+        migrate = Migrate(app, db)
 
         with app.app_context():
             db.create_all()
@@ -77,16 +78,17 @@ class BookResponse:
     """
     isbn13: str
     title: str
-    authors: list[str]
+    authors: List[str]
     image: str
-    shelf: str | None
+    shelf: Optional[str]
 
-    def __init__(self, isbn13: str, title: str, authors, image: str, shelf: str | None):
-        self.isbn13 = isbn13
-        self.title = title
-        self.authors = authors
-        self.image = image
-        self.shelf = shelf
+    def to_dict(self):
+        """
+        Converts the dataclass instance into a dictionary.
+
+        :return: A dictionary with field names as keys and their corresponding field values.
+        """
+        return asdict(self)
 
     @classmethod
     def from_json(cls, d: dict[str, str]):

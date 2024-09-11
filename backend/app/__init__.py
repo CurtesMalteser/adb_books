@@ -57,7 +57,10 @@ def create_app(test_config=None):
                 json_data = json.dumps(request.json)
                 book = json.loads(json_data, object_hook=lambda d: Book.from_json(d=d))
 
-                BookDto(isbn13=book.isbn13, title=book.title, author=book.author, shelf=book.shelf,
+                BookDto(isbn13=book.isbn13,
+                        title=book.title,
+                        author=book.author,
+                        shelf=book.shelf,
                         image=book.image).insert()
 
                 return jsonify({
