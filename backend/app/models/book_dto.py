@@ -36,13 +36,10 @@ def setup_db(app, database_path=db_path):
         with app.app_context():
             db.create_all()
 
-
-'''
-BookDto
-'''
-
-
 class BookDto(db.Model):
+    """
+    BookDto
+    """
     __tablename__ = 'books'
 
     id = Column(Integer, primary_key=True)
@@ -52,10 +49,10 @@ class BookDto(db.Model):
     image = db.Column(String, nullable=True, default=None)
     shelf = db.Column(String, nullable=True, default=None)
 
-    def __init__(self, isbn13, title, author, image, shelf):
+    def __init__(self, isbn13, title, authors, image, shelf):
         self.isbn13 = isbn13
         self.title = title
-        self.author = author
+        self.authors = authors
         self.image = image
         self.shelf = shelf
 
