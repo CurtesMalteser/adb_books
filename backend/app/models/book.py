@@ -1,7 +1,8 @@
 """
 Book model
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+from typing import List, Optional
 
 
 def _get_from_authors_or_raise(key, d: dict[str, str]) -> list[str]:
@@ -47,54 +48,29 @@ class Book:
     TODO: Update to match details
     A class to represent a book with serialization to/from JSON and DTO.
     """
-    isbn: str
+    isbn: Optional[str]
     isbn13: str
     title: str
     subtitle: str
-    authors: list[str]
+    authors: List[str]
     image: str
     rating: float
     msrp: float
     language: str
-    publisher: str | None
-    date_published: str | None
-    shelf: str | None
-    synopsis: str | None
-    pages: int | None
-    subjects: list[str]
+    publisher: Optional[str]
+    date_published: Optional[str]
+    shelf: Optional[str]
+    synopsis: Optional[str]
+    pages: Optional[int]
+    subjects: List[str]
 
-    def __init__(self,
-                 isbn: str,
-                 isbn13: str,
-                 title: str,
-                 subtitle: str,
-                 authors: list[str],
-                 image: str,
-                 rating: float,
-                 msrp: float,
-                 language: str,
-                 publisher: str | None,
-                 date_published: str | None,
-                 shelf: str | None,
-                 synopsis: str | None,
-                 pages: int | None,
-                 subjects: list[str],
-                 ):
-        self.isbn = isbn
-        self.isbn13 = isbn13
-        self.title = title
-        self.subtitle = subtitle
-        self.authors = authors
-        self.image = image
-        self.rating = rating
-        self.msrp = msrp
-        self.language = language
-        self.publisher = publisher
-        self.date_published = date_published
-        self.shelf = shelf
-        self.synopsis = synopsis
-        self.pages = pages
-        self.subjects = subjects
+    def to_dict(self):
+        """
+        Converts the dataclass instance into a dictionary.
+
+        :return: A dictionary with field names as keys and their corresponding field values.
+        """
+        return asdict(self)
 
     @classmethod
     def from_json(cls, d: dict[str, str]):

@@ -1,6 +1,23 @@
+import os
+from urllib.parse import urljoin
+import json
+import requests
 from flask import abort, jsonify, Request
 
+from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME
+
 from app.models.book_dto import BookResponse, BookDto, db
+from app.models.book import Book
+
+from requests import (
+    JSONDecodeError,
+    RequestException,
+)
+
+from app.redis_config import redis_client
+
+api_key = os.environ.get('ISBNDB_KEY')
+user_agent = os.environ.get('USER_AGENT')
 
 
 def store_book(request: Request):
@@ -32,32 +49,49 @@ def store_book(request: Request):
         abort(404, "Content type is not supported.")
 
 
-# @TODO: fetch details from server or redis
 def get_book(book_id: str):
-    error = False
-    book = None
+    """
+    :param book_id: ISBN13
+    :type book_id: str
+
+    :return: Book if the request is successful, or aborts with an error response.
+    :rtype: flask.Response
+    """
+
+    url = urljoin(GET_BOOK_ENDPOINT, book_id)
+
+    headers = {
+        "User-Agent": user_agent,
+        "Authorization": api_key
+    }
+
     try:
-        book_dto = BookDto.query.filter(BookDto.bookId == str(book_id)).one_or_none()
-        if isinstance(book_dto, BookDto):
-            # Ignore type cast because it checks if it is a BookDto
-            book = Book.fromDto(book_dto)  # type: ignore
+        book = redis_client.get(book_id)
+
+        if book is None:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            json_response = response.json().get('book')
+
+            book = Book.from_json(d=json_response).to_dict()
+            redis_client.set(book_id, json.dumps(book), ex=REDIS_EXPIRY_TIME)
+
         else:
-            error = True
+            book = json.loads(book)
 
-    except Exception as ex:
-        db.session.rollback()
-        error = True
-        print(f"🧨 error: {ex}")
-    finally:
-        db.session.close()
+        return jsonify(
+            {
+                "success": True,
+                "book": book,
+            }
+        )
 
-    if error:
-        abort(400)
-    else:
-        return jsonify({
-            "success": True,
-            "book": book,
-        })
+    except JSONDecodeError:
+        abort(500, description="Invalid JSON response from upstream server.")
+
+    except RequestException as e:
+        abort(500, description=f"An error occurred while fetching data: {str(e)}")
+
 
 def remove_book(book_id: str):
     try:
@@ -71,6 +105,6 @@ def remove_book(book_id: str):
         db.session.close()
 
     return jsonify({
-        "sucess": True,
+        "success": True,
         "deleted": book_id,
     })

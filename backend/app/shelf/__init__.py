@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request
 from flask_cors import cross_origin
 
 from app.auth.auth import requires_auth
@@ -17,13 +17,17 @@ def add_book(payload):
 
 @shelf_bp.route('/book/<string:book_id>')
 @cross_origin()
-def fetch_book(book_id: str):
+@requires_auth('book:get')
+def fetch_book(payload, book_id: str):
+    print(f'👤 {payload}')
     return get_book(book_id)
 
 
 @shelf_bp.route('/book/<string:book_id>', methods=['DELETE'])
 @cross_origin()
-def delete_book(book_id: str):
+@requires_auth('book:delete')
+def delete_book(payload, book_id: str):
+    print(f'👤 {payload}')
     return remove_book(book_id)
 
 

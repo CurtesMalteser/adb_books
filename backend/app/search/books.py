@@ -1,4 +1,6 @@
 import os
+from urllib.parse import urljoin
+
 from flask import (
     request,
     jsonify,
@@ -35,7 +37,7 @@ def books(user_agent):
     if not query:
         raise  InvalidRequestError(message="Missing 'q' parameter", code=400)
 
-    url = f'{SEARCH_ENDPOINT}/{query}?page={page}&pageSize={limit}'
+    url = urljoin(SEARCH_ENDPOINT,f'{query}?page={page}&pageSize={limit}')
 
     headers = {
         "User-Agent": user_agent,
