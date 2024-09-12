@@ -20,18 +20,21 @@ const DropdownBookItems: React.FC<DropdownBookItemsProps> = ({ book, addToShelf 
             )
             )}
         </>
-    )
+    );
 }
 
+// TODO: Rename file to match this and not DropdownBookItems. Use git to remane
 const BookShelfSelector: React.FC<DropdownBookItemsProps> = ({ book, addToShelf }) => {
 
     const shelfLabel = mapToLabel(book.shelf)
 
-    return (<>
-        <DropdownButton id="dropdown-basic-button" title={shelfLabel} style={{ paddingInlineStart: '10px' }}>
-            <DropdownBookItems book={book} addToShelf={() => addToShelf(book)} />
-        </DropdownButton>
-    </>)
+    return (
+        <>
+            <DropdownButton id="dropdown-basic-button" title={shelfLabel} className='mt-2'>
+                <DropdownBookItems book={book} addToShelf={() => addToShelf(book)} />
+            </DropdownButton>
+        </>
+    );
 }
 
 export default BookShelfSelector

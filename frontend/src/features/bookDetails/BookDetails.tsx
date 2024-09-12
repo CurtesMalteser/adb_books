@@ -6,14 +6,23 @@ import BookIdentifierType from "../../components/books/BookIdentifierType";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import BookRating from "../../components/books/BookRating";
+import BookShelfSelector from "../../components/books/DropdownBookItems";
 
-
+// TODO: add slice and thunk to update book on BE
 function BookDetails() {
 
     const book = useLoaderData() as Book;
     const authorLabel = (book.authors?.length ?? 1) > 1 ? "Authors" : "Author";
     const authors = book.authors ? book.authors.join(', ') : 'N/A';
     const categoryLabel = (book.subjects?.length ?? 1) > 1 ? "Categories" : "Category";
+
+
+    const addToShelf = (book: Book) => {
+        console.group('📚 Book added to shelf')
+        console.log('Implement the logic to add the book to the shelf')
+        console.log(book)
+        console.groupEnd()
+    }
 
     return (
         <Container className="md-6" style={{ marginTop: 20, marginBottom: 20, marginLeft: "auto", marginRight: "auto" }} >
@@ -26,6 +35,7 @@ function BookDetails() {
                     <h3>{book.subtitle}</h3>
                     <p><b>{authorLabel}:</b> {authors}</p>
                     <BookRating rating={book.rating} ratingsCount={book.rating} />
+                    <BookShelfSelector book={book} addToShelf={addToShelf} />
                     <hr />
                     <p>{book.synopsis}</p>
                     <hr />
@@ -37,11 +47,11 @@ function BookDetails() {
                         <BookIdentifierType key={IdentifierType.ISBN_10} isbn={{
                             type: IdentifierType.ISBN_10,
                             identifier: book.isbn,
-                            }}/>
+                        }} />
                         <BookIdentifierType key={IdentifierType.ISBN_13} isbn={{
                             type: IdentifierType.ISBN_13,
                             identifier: book.isbn13,
-                            }}/>
+                        }} />
                     </p>
                 </Col>
             </Row>
