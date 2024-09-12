@@ -1,32 +1,19 @@
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
-import Book from './Book';
-import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import { Shelf } from './Book';
 import { mapToLabel } from '../../utils/ShelfMapper';
+import DropdownBookItems from './DropdownBookItems';
+import Book from './Book';
 
-interface BookCardProps {
-    book: Book,
-    addToShelf: (book: Book) => void,
-}
+function BookCard( {book}: {book: Book}) {
 
-function DropdownBookItems({ book, addToShelf }: { book: Book, addToShelf: (book: Book) => void }) {
-    return (
-        <>
-            {Object.values(Shelf).map((shelf) => (
-                shelf !== book.shelf && <Dropdown.Item key={shelf} onClick={() => {
-                   // book.shelf = shelf
-                    addToShelf(book)
-                }} > {mapToLabel(shelf)} </Dropdown.Item>
-            )
-            )}
-        </>
-    )
-}
-
-function BookCard({ book, addToShelf }: BookCardProps) {
+    const addToShelf = (book: Book) => {
+        console.group('📚 Book added to shelf')
+        console.log('Implement the logic to add the book to the shelf')
+        console.log(book)
+        console.groupEnd()
+      }
 
     const bookCover = book.image ?? '/book-placeholder.svg'
     const authors = book.authors ? book.authors.join(', ') : 'N/A'

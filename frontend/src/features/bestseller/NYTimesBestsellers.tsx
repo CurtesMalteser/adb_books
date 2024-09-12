@@ -13,8 +13,8 @@ import { Status } from '../../constants/Status';
 const showBooks = (fiction: Book[], nonFiction: Book[]) => {
     return (
         <>
-            <BookShelf key='fiction' title='Fiction' books={fiction.slice(0, 3)}/>
-            <BookShelf key='nonfiction' title='Non Fiction' books={nonFiction.slice(0, 3)}/>
+            <BookShelf key='fiction' title='Fiction' books={fiction.slice(0, 3)} />
+            <BookShelf key='nonfiction' title='Non Fiction' books={nonFiction.slice(0, 3)} />
         </>
     )
 };
