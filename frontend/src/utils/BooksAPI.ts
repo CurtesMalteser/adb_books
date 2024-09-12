@@ -4,11 +4,11 @@ const api = process.env.BOOKS_API_URL || 'http://127.0.0.1:5000'
 
 let token = localStorage.token;
 
-const head = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
-const payload = 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBkb2UuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlIjoiYm9vazpzYXZlIn0';
-const signature = 'FB36NBKLutcaVMDnBl4y0Dwturq38L3GDAqtdgQt0dc';
+const header = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+const payload = 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBkb2UuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJwZXJtaXNzaW9ucyI6WyJib29rOnNhdmUiLCJib29rOmdldCIsImJvb2s6ZGVsZXRlIl19';
+const signature = 'sBr7N20iIwugvL0ix2m05oV1Op3Q1oAdhW05KhUbZWA';
 
-if (!token) token = localStorage.token = `${head}.${payload}.${signature}`;
+if (!token) token = localStorage.token = `${header}.${payload}.${signature}`;
 
 const headers = {
   Accept: "application/json",
@@ -31,13 +31,13 @@ export const fetchCurrentlyReadingBooklist = () =>
     .then((data) => data);
 
 export const getBook = (id: string) =>
-  fetch(`${api}/books/${id}`, { headers })
+  fetch(`${api}/book/${id}`, { headers })
     .then((res) => res.json())
     .then((data) => data.book);
 
 export const update = (id: string, shelf: string) =>
   fetch(`${api}/books/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       ...headers,
       "Content-Type": "application/json",

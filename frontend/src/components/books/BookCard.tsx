@@ -17,7 +17,7 @@ function DropdownBookItems({ book, addToShelf }: { book: Book, addToShelf: (book
         <>
             {Object.values(Shelf).map((shelf) => (
                 shelf !== book.shelf && <Dropdown.Item key={shelf} onClick={() => {
-                    book.shelf = shelf
+                   // book.shelf = shelf
                     addToShelf(book)
                 }} > {mapToLabel(shelf)} </Dropdown.Item>
             )
@@ -40,7 +40,7 @@ function BookCard({ book, addToShelf }: BookCardProps) {
                 <Card.Title className='oneLine'>{book.title}</Card.Title>
                 <Card.Text className='oneLine'>{authors}</Card.Text>
                 <div className="d-flex">
-                    <Link to={`/book/${book.id}`}><Button variant="primary">Details</Button></Link>
+                    <Link to={`/book/${book.isbn13}`}><Button variant="primary">Details</Button></Link>
                     <DropdownButton id="dropdown-basic-button" title={shelfLabel} style={{ paddingInlineStart: '10px' }}>
                         <DropdownBookItems book={book} addToShelf={() => addToShelf(book)} />
                     </DropdownButton>
