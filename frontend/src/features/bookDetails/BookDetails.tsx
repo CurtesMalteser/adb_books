@@ -1,11 +1,11 @@
 import { useLoaderData } from "react-router-dom";
-import { getBook } from "../utils/BooksAPI";
+import { getBook } from "../../utils/BooksAPI";
 import Container from 'react-bootstrap/Container';
-import Book, { IdentifierType } from "../components/books/Book";
-import BookIdentifierType from "../components/books/BookIdentifierType";
+import Book, { IdentifierType } from "../../components/books/Book";
+import BookIdentifierType from "../../components/books/BookIdentifierType";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import BookRating from "../components/books/BookRating";
+import BookRating from "../../components/books/BookRating";
 
 
 function BookDetails() {
