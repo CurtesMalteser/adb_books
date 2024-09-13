@@ -16,7 +16,6 @@ from requests import (
 )
 
 from app.models.book_shelf import BookShelf
-from app.models.shelf import Shelf
 from app.models.user import User
 from app.redis_config import redis_client
 
@@ -52,14 +51,7 @@ def store_book(payload, request: Request):
 
             if book_shelf is not None:
                 # If book is already on the user's shelf, raise a conflict
-               raise InvalidRequestError(409, f'Book already in shelf {book_request.shelf}. Please use PATCH instead.')
-
-            # If the book is not in any shelf, check if the shelf exists
-            shelf = Shelf.query.filter_by(userID=user_id, shelf_name=book_request.shelf).first()
-            if not shelf:
-                # Create a new shelf if it doesn't exist
-                shelf = Shelf(userID=user_id, shelf_name=book_request.shelf)
-                db.session.add(shelf)
+                raise InvalidRequestError(409, f'Book already in shelf {book_request.shelf}. Please use PATCH instead.')
 
             # Now check if the book exists in the BookDto table
             book = BookDto.query.filter_by(isbn13=book_request.isbn13).first()
@@ -70,12 +62,12 @@ def store_book(payload, request: Request):
                     title=book_request.title,
                     authors=book_request.authors,
                     image=book_request.image,
-                    shelf=shelf.shelf_name
+                    shelf=book_request.shelf
                 )
                 db.session.add(book)
 
             # Link the book to the user's shelf (BookShelf table)
-            new_book_shelf = BookShelf(isbn13=book.isbn13, shelfID=shelf.shelfID, userID=user_id)
+            new_book_shelf = BookShelf(isbn13=book.isbn13, shelf=book.shelf, userID=user_id)
             db.session.add(new_book_shelf)
 
             # Commit all changes in one go
@@ -163,3 +155,30 @@ def remove_book(book_id: str):
         "success": True,
         "deleted": book_id,
     })
+
+
+def update_book_shelf(user_id: str, book_id: str, request: Request):
+    try:
+        if request.is_json:
+
+            book_shelf = BookShelf.query.filter_by(
+                isbn13=book_id,
+                userID=user_id
+            ).first()
+
+            if book_shelf is not None:
+                print(f'📚 {book_shelf.shelfID} => {book_shelf.shelf_name}')
+
+                return jsonify({
+                    "success": True,
+                     "error": 200
+                     })
+            else:
+                raise InvalidRequestError(code=409,
+                                          message=f'Shelf not found for the given user and ISBN-13. Try add to shelf first')
+
+    except InvalidRequestError as e:
+        print(f'❌ {e}')
+
+    except:
+        abort(422)

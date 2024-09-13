@@ -10,7 +10,7 @@ from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
 from app.models.book_dto import db
-from app.models.shelf import Shelf
+from app.models.book_shelf import BookShelf
 
 
 class User(db.Model):
@@ -30,4 +30,4 @@ class User(db.Model):
     email = Column(String(100), unique=True, nullable=False)
 
     # Relationship to shelves
-    shelves = relationship(Shelf, backref='user', lazy=True)
+    bookshelves = relationship(BookShelf, backref='user', lazy=True)

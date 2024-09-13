@@ -8,14 +8,16 @@ The models support serialization to/from JSON, making them suitable for use in A
 """
 from sqlalchemy import (Column,
                         String,
-                        Integer,
                         ForeignKey,
+                        Enum,
                         )
 
+from app.models.shelf import ShelfEnum
 from app.models.book_dto import db
 
 
 class BookShelf(db.Model):
+
     """
     A class that represents the association between books and shelves in a many-to-many relationship.
 
@@ -27,4 +29,4 @@ class BookShelf(db.Model):
 
     isbn13 = Column(String, ForeignKey('books.isbn13'), primary_key=True)
     userID = Column(String, ForeignKey('users.userID'), primary_key=True)
-    shelfID = Column(Integer, ForeignKey('shelves.shelfID'), primary_key=True)
+    shelf = Column(Enum(ShelfEnum), nullable=False, default=ShelfEnum.NONE)
