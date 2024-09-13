@@ -17,12 +17,12 @@ function MyBooklist() {
 
   return (
     <>
-      <h1>WIP - Implementing Auth</h1>
       {status === Status.LOADING && <h1>Loading...</h1>}
-      {status !== Status.LOADING && <BooksList
+      {status === Status.IDLE && <BooksList
         readBooks={shelves.read}
         wantToRead={shelves.wantToRead}
         currentlyReading={shelves.currentlyReading} />}
+      {status === Status.FAILED && <h1>Error...</h1>}
     </>
   );
 

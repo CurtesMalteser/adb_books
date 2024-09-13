@@ -8,9 +8,7 @@ from app.models.shelf import Shelf
 from app.pagination.books import paginate
 
 
-def booklist(shelf: str):
-    # TODO: get uid from Bearer token
-    userID = 'random_id'
+def booklist(used_id: str, shelf: str):
 
     def query():
         return (
@@ -18,7 +16,7 @@ def booklist(shelf: str):
             .join(BookShelf, BookShelf.isbn13 == BookDto.isbn13)
             .join(Shelf, Shelf.shelfID == BookShelf.shelfID)
             .filter(Shelf.shelf_name == shelf)
-            .filter(Shelf.userID == userID)
+            .filter(Shelf.userID == used_id)
             .order_by(BookDto.title)
             .all()
         )

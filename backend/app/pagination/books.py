@@ -37,7 +37,7 @@ def paginate(request, query):
     data_books = map(lambda book: BookResponse(
         isbn13=book.isbn13,
         title=book.title,
-        author=book.authors,
+        authors=book.authors,
         image=book.image,
         shelf=None,
     ), data_books)
