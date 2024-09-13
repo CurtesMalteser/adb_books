@@ -26,4 +26,5 @@ class BookShelf(db.Model):
     __tablename__ = 'book_shelves'
 
     isbn13 = Column(String, ForeignKey('books.isbn13'), primary_key=True)
+    userID = Column(String, ForeignKey('users.userID'), primary_key=True)
     shelfID = Column(Integer, ForeignKey('shelves.shelfID'), primary_key=True)
