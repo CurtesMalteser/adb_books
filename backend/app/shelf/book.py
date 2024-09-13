@@ -5,8 +5,9 @@ import requests
 from flask import abort, jsonify, Request
 
 from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME
+from app.exceptions.invalid_request_error import InvalidRequestError
 
-from app.models.book_dto import BookResponse, BookDto, db
+from app.models.book_dto import BookResponse, BookDto, db, username
 from app.models.book import Book
 
 from requests import (
@@ -14,37 +15,91 @@ from requests import (
     RequestException,
 )
 
+from app.models.book_shelf import BookShelf
+from app.models.shelf import Shelf
+from app.models.user import User
 from app.redis_config import redis_client
 
 api_key = os.environ.get('ISBNDB_KEY')
 user_agent = os.environ.get('USER_AGENT')
 
 
-def store_book(request: Request):
+def store_book(payload, request: Request):
+    user_id = payload.get('sub')
+    print(f'👤 {user_id}')
+
     if request.is_json:
         try:
-            book_request = BookResponse.from_json(d=request.get_json())
-            book = BookDto.query.filter(BookDto.isbn13 == book_request.isbn13).one_or_none()
+            # @TODO: Add validate token endpoint and there this code should be applied
+            # Ensure the user exists or create a new one
+            user = User.query.filter_by(userID=user_id).first()
+            if user is None:
+                user = User(
+                    userID=user_id,
+                    username=payload.get('name'),
+                    email=payload.get('email')
+                )
+                db.session.add(user)
 
+            # Deserialize the incoming book request
+            book_request = BookResponse.from_json(d=request.get_json())
+
+            # Check if the book is already linked to the user's shelf
+            book_shelf = BookShelf.query.filter_by(
+                isbn13=book_request.isbn13,
+                userID=user_id
+            ).first()
+
+            if book_shelf is not None:
+                # If book is already on the user's shelf, raise a conflict
+               raise InvalidRequestError(409, f'Book already in shelf {book_request.shelf}. Please use PATCH instead.')
+
+            # If the book is not in any shelf, check if the shelf exists
+            shelf = Shelf.query.filter_by(userID=user_id, shelf_name=book_request.shelf).first()
+            if not shelf:
+                # Create a new shelf if it doesn't exist
+                shelf = Shelf(userID=user_id, shelf_name=book_request.shelf)
+                db.session.add(shelf)
+
+            # Now check if the book exists in the BookDto table
+            book = BookDto.query.filter_by(isbn13=book_request.isbn13).first()
             if book is None:
-                BookDto(isbn13=book_request.isbn13,
-                        title=book_request.title,
-                        authors=book_request.authors,
-                        shelf=book_request.shelf,
-                        image=book_request.image).insert()
+                # Insert the book if it doesn't exist
+                book = BookDto(
+                    isbn13=book_request.isbn13,
+                    title=book_request.title,
+                    authors=book_request.authors,
+                    image=book_request.image,
+                    shelf=shelf.shelf_name
+                )
+                db.session.add(book)
+
+            # Link the book to the user's shelf (BookShelf table)
+            new_book_shelf = BookShelf(isbn13=book.isbn13, shelfID=shelf.shelfID, userID=user_id)
+            db.session.add(new_book_shelf)
+
+            # Commit all changes in one go
+            db.session.commit()
 
             return jsonify({
                 "success": True,
                 "book": book_request
             })
 
-        # TODO: Define specific exceptions and use the custom error handler for 422 errors.
-        except:
+        except InvalidRequestError as e:
+            # Handle custom exception with specific response (no rollback)
+            print(f"❌ InvalidRequestError: {e}")
+            abort(e.code, e.message)
+
+        except Exception as e:
+            # TODO: Define specific exceptions and use the custom error handler for 422 errors.
+            print(f"❌ Error: {e}")
             db.session.rollback()
             abort(422)
 
         finally:
             db.session.close()
+
     else:
         abort(404, "Content type is not supported.")
 

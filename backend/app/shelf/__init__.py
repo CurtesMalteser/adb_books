@@ -11,8 +11,7 @@ shelf_bp = Blueprint('shelf', __name__)
 @cross_origin()
 @requires_auth('book:save')
 def add_book(payload):
-    print(f'👤 {payload}')
-    return store_book(request)
+    return store_book(payload=payload, request=request)
 
 
 @shelf_bp.route('/book/<string:book_id>')

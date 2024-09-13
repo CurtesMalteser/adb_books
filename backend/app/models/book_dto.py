@@ -49,6 +49,7 @@ class BookDto(db.Model):
     image = db.Column(String, nullable=True, default=None)
     shelf = db.Column(String, nullable=True, default=None)
 
+    # @TODO: delete shelf, not used
     def __init__(self, isbn13, title, authors, image, shelf):
         self.isbn13 = isbn13
         self.title = title
