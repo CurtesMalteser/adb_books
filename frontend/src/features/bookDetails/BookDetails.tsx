@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
-import Book, { IdentifierType, Shelf } from "../../components/books/Book";
+import { IdentifierType, Shelf } from "../../components/books/Book";
 import BookIdentifierType from "../../components/books/BookIdentifierType";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -27,10 +27,6 @@ function BookDetails() {
 
 
     const addToShelf = (isbn13: string, shelf: Shelf) => {
-        console.group('📚 Book added to shelf')
-        console.log('Implement the logic to add the book to the shelf')
-        console.log(book)
-        console.groupEnd()
         dispatch(updateShelfAsync({ isbn13, shelf }))
     }
 

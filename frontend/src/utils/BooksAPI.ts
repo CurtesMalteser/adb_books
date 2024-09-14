@@ -39,7 +39,7 @@ export const getBook = (id: string) =>
 
 export const postBook = (book: Book) =>
       fetch(`${api}/book`, {
-        method: "PATCH",
+        method: "POST",
         headers: {
           ...headers,
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const postBook = (book: Book) =>
           title: book.title,
           authors: book.authors,
           image: book.image,
-          shelf: book.shelf?.valueOf(),
+          shelf: book.shelf!!.valueOf(),
          }),
       }).then((res) => res.json());
 

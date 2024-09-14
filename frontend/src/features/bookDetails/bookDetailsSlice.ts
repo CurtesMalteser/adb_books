@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Book, { Shelf } from "../../components/books/Book";
 import { Status } from "../../constants/Status";
-import { getBook, updateShelf } from "../../utils/BooksAPI";
+import { getBook, postBook, updateShelf } from "../../utils/BooksAPI";
 import { RootState } from "../../app/store";
 
 interface BookDetailsState {
@@ -26,14 +26,23 @@ export const fetchBookDetailsAsync = createAsyncThunk(
 
 export const updateShelfAsync = createAsyncThunk(
     'bookDetails/updateShelf',
-    async ({isbn13, shelf}: {isbn13: string, shelf: Shelf}) => {
-        // todo: add logic to post book to server if the previous shelf was null
-        // else update the shelf
-        const response = updateShelf(isbn13, shelf)
-        await response;
-        return shelf;
+    async ({ isbn13, shelf }: { isbn13: string, shelf: Shelf }, { getState }) => {
+        const state = getState() as RootState;
+        const book = state.bookDetails.book;
+
+        if (!book) {
+            throw new Error(`Book with ISBN ${isbn13} not found in state`);
+        }
+
+        if (book.shelf === null) {
+             await postBook({ ...book, shelf });
+        } else {
+             await updateShelf(isbn13, shelf);
+        }
+
+        return { ...book, shelf };
     }
-)
+);
 
 export const bookDetailsSlice = createSlice({
     name: 'bookDetails',
@@ -58,13 +67,11 @@ export const bookDetailsSlice = createSlice({
         }).addCase(updateShelfAsync.fulfilled, (state, action) => {
             state.status = Status.IDLE;
             state.error = null;
-            const book = state.book;
-            if(book) {
-                book.shelf = action.payload;
-                state.book = book;
-            }
+            console.log(`📚 Book added to shelf: ${action.payload?.shelf}`)
+            state.book = action.payload;
         })
         .addCase(updateShelfAsync.rejected, (state, action) => {
+            console.error(action.error)
             state.status = Status.FAILED;
             state.error = action.error.message || 'An error occurred';
         })
