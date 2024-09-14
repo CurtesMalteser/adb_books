@@ -13,12 +13,12 @@ const DropdownBookItems: React.FC<DropdownBookItemsProps> = ({ book, addToShelf 
     return (
         <>
             {Object.values(Shelf).map((shelf) => (
-                shelf !== book.shelf && <Dropdown.Item key={shelf} onClick={() => {
-                    // book.shelf = shelf
-                    addToShelf(book)
-                }} > {mapToLabel(shelf)} </Dropdown.Item>
-            )
-            )}
+                shelf !== book.shelf && <Dropdown.Item
+                    key={shelf}
+                    onClick={() => { addToShelf(book) }} >
+                    {mapToLabel(shelf)}
+                </Dropdown.Item>
+            ))}
         </>
     );
 }

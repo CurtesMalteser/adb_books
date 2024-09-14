@@ -4,7 +4,6 @@ import HomePage from '../features/home/Home';
 import RouteLayout from '../pages/RootLayout';
 import ErrorPage from '../pages/ErrorPage';
 import BookDetails from '../features/bookDetails/BookDetails';
-import { loader as bookLoader } from '../features/bookDetails/BookDetails';
 import MyBookList from '../features/booklist/MyBooklist';
 import ROUTES from '../constants/Routes';
 
@@ -20,7 +19,6 @@ const router = createBrowserRouter([
       {
         path: ROUTES.BOOK_DETAILS,
         element: <BookDetails />,
-        loader: bookLoader
       },
     ]
   },
