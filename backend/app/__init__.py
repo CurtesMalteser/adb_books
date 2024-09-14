@@ -1,8 +1,8 @@
-import json
 from flask import (
     Flask,
     jsonify,
 )
+
 from flask_cors import CORS
 
 from .auth.auth import requires_auth
@@ -15,7 +15,6 @@ from .ny_times import ny_times_bp
 from .search import search_bp
 
 from .models.user import User
-from .models.shelf import Shelf
 from .models.book_shelf import BookShelf
 from .shelf import shelf_bp
 

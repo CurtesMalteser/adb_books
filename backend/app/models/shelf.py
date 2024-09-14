@@ -9,8 +9,26 @@ The models support serialization to/from JSON, making them suitable for use in A
 import enum
 
 class ShelfEnum(enum.Enum):
-    NONE = 1
-    WANT_TO_READ = 2
-    CURRENTLY_READING = 3
-    READ = 4
+    WANT_TO_READ = 1
+    CURRENTLY_READING = 2
+    READ = 3
 
+    @classmethod
+    def to_url(cls, shelf: 'ShelfEnum') -> str:
+        """Maps the enum to a URL-friendly string."""
+        mapping = {
+            cls.WANT_TO_READ: 'want-to-read',
+            cls.CURRENTLY_READING: 'currently-reading',
+            cls.READ: 'read'
+        }
+        return mapping[shelf]
+
+    @classmethod
+    def from_str(cls, url: str) -> 'ShelfEnum':
+        """Maps a URL-friendly string back to the enum."""
+        reverse_mapping = {
+            'want-to-read': cls.WANT_TO_READ,
+            'currently-reading': cls.CURRENTLY_READING,
+            'read': cls.READ
+        }
+        return reverse_mapping[url]

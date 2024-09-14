@@ -10,6 +10,8 @@ from sqlalchemy import (Column,
                         String,
                         ForeignKey,
                         Enum,
+                        UniqueConstraint,
+                        Integer,
                         )
 
 from app.models.shelf import ShelfEnum
@@ -27,6 +29,9 @@ class BookShelf(db.Model):
     """
     __tablename__ = 'book_shelves'
 
-    isbn13 = Column(String, ForeignKey('books.isbn13'), primary_key=True)
-    userID = Column(String, ForeignKey('users.userID'), primary_key=True)
-    shelf = Column(Enum(ShelfEnum), nullable=False, default=ShelfEnum.NONE)
+    id = Column(Integer, primary_key=True, autoincrement=False, nullable=False)
+    isbn13 = Column(String, ForeignKey('books.isbn13'), nullable=False)
+    userID = Column(String, ForeignKey('users.userID'), nullable=False)
+    shelf = Column(Enum(ShelfEnum), nullable=False)
+
+    __table_args__ = (UniqueConstraint('isbn13', 'userID', name='_isbn13_user_uc'),)
