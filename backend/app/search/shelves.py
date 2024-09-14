@@ -16,19 +16,12 @@ def shelves():
         raise InvalidRequestError(message="Missing 'q' parameter", code=400)
 
     try:
-        query = lambda : BookDto.query.filter(BookDto.title.ilike('%{}%'.format(query_param))).order_by(BookDto.id).all()
-        books = paginate(request=request, query=query)
+        query = lambda: (BookDto.query
+                         .filter(BookDto.title.ilike('%{}%'.format(query_param)))
+                         .order_by(BookDto.id)
+                         .all())
 
-        if books is None:
-            return jsonify({
-                'success': True,
-                'books': [],
-                'page': 0,
-                'page_size': 0,
-                'total_results': 0
-                })
-        else:
-            return books
+        return paginate(request=request, query=query)
 
     except Exception as e:
         print(e)
