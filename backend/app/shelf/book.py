@@ -16,6 +16,7 @@ from requests import (
 )
 
 from app.models.book_shelf import BookShelf
+from app.models.shelf import ShelfEnum
 from app.models.user import User
 from app.redis_config import redis_client
 
@@ -25,7 +26,6 @@ user_agent = os.environ.get('USER_AGENT')
 
 def store_book(payload, request: Request):
     user_id = payload.get('sub')
-    print(f'👤 {user_id}')
 
     if request.is_json:
         try:
@@ -79,13 +79,10 @@ def store_book(payload, request: Request):
             })
 
         except InvalidRequestError as e:
-            # Handle custom exception with specific response (no rollback)
-            print(f"❌ InvalidRequestError: {e}")
             abort(e.code, e.message)
 
         except Exception as e:
             # TODO: Define specific exceptions and use the custom error handler for 422 errors.
-            print(f"❌ Error: {e}")
             db.session.rollback()
             abort(422)
 
@@ -160,14 +157,16 @@ def remove_book(book_id: str):
 def update_book_shelf(user_id: str, book_id: str, request: Request):
     try:
         if request.is_json:
-
             book_shelf = BookShelf.query.filter_by(
                 isbn13=book_id,
                 userID=user_id
-            ).first()
+            ).one_or_none()
 
             if book_shelf is not None:
-                print(f'📚 {book_shelf.shelfID} => {book_shelf.shelf_name}')
+                shelf = ShelfEnum.from_str(request.get_json().get('shelf'))
+                book_shelf.shelf = shelf
+                db.session.add(book_shelf)
+                db.session.commit()
 
                 return jsonify({
                     "success": True,
@@ -178,7 +177,12 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
                                           message=f'Shelf not found for the given user and ISBN-13. Try add to shelf first')
 
     except InvalidRequestError as e:
-        print(f'❌ {e}')
+        raise e
 
-    except:
+    except Exception as e:
+        print(f'🧨 {e}')
+        db.session.rollback()
         abort(422)
+
+    finally:
+        db.session.close()

@@ -14,8 +14,8 @@ class ShelfEnum(enum.Enum):
     READ = 3
 
     @classmethod
-    def to_url(cls, shelf: 'ShelfEnum') -> str:
-        """Maps the enum to a URL-friendly string."""
+    def to_str(cls, shelf: 'ShelfEnum') -> str:
+        """Maps the enum to JSON/URL path string."""
         mapping = {
             cls.WANT_TO_READ: 'want-to-read',
             cls.CURRENTLY_READING: 'currently-reading',
@@ -25,7 +25,7 @@ class ShelfEnum(enum.Enum):
 
     @classmethod
     def from_str(cls, url: str) -> 'ShelfEnum':
-        """Maps a URL-friendly string back to the enum."""
+        """Maps a from JSON/URL path string back to the enum."""
         reverse_mapping = {
             'want-to-read': cls.WANT_TO_READ,
             'currently-reading': cls.CURRENTLY_READING,
