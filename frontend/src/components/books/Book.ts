@@ -20,7 +20,6 @@ export enum Shelf {
 }
 
 interface Book {
-    id: string;
     title: string;
     subtitle: string;
     authors: string[];
@@ -32,10 +31,8 @@ interface Book {
     rating: number;
     synopsis: string;
     pages: number;
-    msrp: number;
     isbn: string;
     isbn13: string;
-    language: string;
 }
 
 export function parseBook(data: any): Book {

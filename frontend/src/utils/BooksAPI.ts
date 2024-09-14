@@ -37,6 +37,9 @@ export const getBook = (id: string) =>
     .then((res) => res.json())
     .then((data) => data.book);
 
+export const deleteBook = (id: string) => fetch(`${api}/book/${id}`, {headers, method: "DELETE"})
+    .then((res) => res.json());
+
 export const postBook = (book: Book) =>
       fetch(`${api}/book`, {
         method: "POST",

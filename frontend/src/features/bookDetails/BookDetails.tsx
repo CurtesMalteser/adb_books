@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import BookRating from "../../components/books/BookRating";
 import BookShelfSelector from "../../components/books/DropdownBookItems";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { bookSelector, fetchBookDetailsAsync, statusSelector, updateShelfAsync } from "./bookDetailsSlice";
+import { bookSelector, fetchBookDetailsAsync, removeFromShelfAsync, statusSelector, updateShelfAsync } from "./bookDetailsSlice";
 import { useEffect } from "react";
 import { Status } from "../../constants/Status";
 
@@ -30,6 +30,10 @@ function BookDetails() {
         dispatch(updateShelfAsync({ isbn13, shelf }))
     }
 
+    const removeFromShelf = (isbn13: string) => {
+        dispatch(removeFromShelfAsync(isbn13))
+    }
+
     useEffect(() => {
         id && dispatch(fetchBookDetailsAsync(id))
     }, [id, dispatch])
@@ -50,7 +54,7 @@ function BookDetails() {
                                 <h3>{book.subtitle}</h3>
                                 <p><b>{authorLabel}:</b> {authors}</p>
                                 <BookRating rating={book.rating} ratingsCount={book.rating} />
-                                <BookShelfSelector book={book} addToShelf={addToShelf} />
+                                <BookShelfSelector book={book} addToShelf={addToShelf} removeFromShelf={removeFromShelf}/>
                                 <hr />
                                 <p>{book.synopsis}</p>
                                 <hr />
