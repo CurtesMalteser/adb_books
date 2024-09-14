@@ -1,4 +1,4 @@
-import { parseBook } from "../components/books/Book";
+import Book, { parseBook } from "../components/books/Book";
 
 const api = process.env.BOOKS_API_URL || 'http://127.0.0.1:5000'
 
@@ -37,7 +37,23 @@ export const getBook = (id: string) =>
     .then((res) => res.json())
     .then((data) => data.book);
 
-export const update = (id: string, shelf: string) =>
+export const postBook = (book: Book) =>
+      fetch(`${api}/book`, {
+        method: "PATCH",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          isbn13: book.isbn13,
+          title: book.title,
+          authors: book.authors,
+          image: book.image,
+          shelf: book.shelf?.valueOf(),
+         }),
+      }).then((res) => res.json());
+
+export const updateShelf = (id: string, shelf: string) =>
   fetch(`${api}/book/${id}`, {
     method: "PATCH",
     headers: {

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import Book from "../../components/books/Book";
+import Book, { Shelf } from "../../components/books/Book";
 import { Status } from "../../constants/Status";
-import { getBook } from "../../utils/BooksAPI";
+import { getBook, updateShelf } from "../../utils/BooksAPI";
 import { RootState } from "../../app/store";
 
 interface BookDetailsState {
@@ -24,6 +24,17 @@ export const fetchBookDetailsAsync = createAsyncThunk(
     }
 )
 
+export const updateShelfAsync = createAsyncThunk(
+    'bookDetails/updateShelf',
+    async ({isbn13, shelf}: {isbn13: string, shelf: Shelf}) => {
+        // todo: add logic to post book to server if the previous shelf was null
+        // else update the shelf
+        const response = updateShelf(isbn13, shelf)
+        await response;
+        return shelf;
+    }
+)
+
 export const bookDetailsSlice = createSlice({
     name: 'bookDetails',
     initialState,
@@ -38,6 +49,22 @@ export const bookDetailsSlice = createSlice({
             state.book = action.payload;
         })
         .addCase(fetchBookDetailsAsync.rejected, (state, action) => {
+            state.status = Status.FAILED;
+            state.error = action.error.message || 'An error occurred';
+        })
+        .addCase(updateShelfAsync.pending, (state) => {
+            state.status = Status.LOADING;
+            state.error = null;
+        }).addCase(updateShelfAsync.fulfilled, (state, action) => {
+            state.status = Status.IDLE;
+            state.error = null;
+            const book = state.book;
+            if(book) {
+                book.shelf = action.payload;
+                state.book = book;
+            }
+        })
+        .addCase(updateShelfAsync.rejected, (state, action) => {
             state.status = Status.FAILED;
             state.error = action.error.message || 'An error occurred';
         })

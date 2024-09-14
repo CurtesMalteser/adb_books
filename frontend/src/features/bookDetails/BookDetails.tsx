@@ -1,14 +1,13 @@
-import { useLoaderData, useParams } from "react-router-dom";
-import { getBook } from "../../utils/BooksAPI";
+import { useParams } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
-import Book, { IdentifierType } from "../../components/books/Book";
+import Book, { IdentifierType, Shelf } from "../../components/books/Book";
 import BookIdentifierType from "../../components/books/BookIdentifierType";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import BookRating from "../../components/books/BookRating";
 import BookShelfSelector from "../../components/books/DropdownBookItems";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { bookSelector, fetchBookDetailsAsync, statusSelector } from "./bookDetailsSlice";
+import { bookSelector, fetchBookDetailsAsync, statusSelector, updateShelfAsync } from "./bookDetailsSlice";
 import { useEffect } from "react";
 import { Status } from "../../constants/Status";
 
@@ -27,16 +26,17 @@ function BookDetails() {
     const categoryLabel = (book?.subjects?.length ?? 1) > 1 ? "Categories" : "Category";
 
 
-    const addToShelf = (book: Book) => {
+    const addToShelf = (isbn13: string, shelf: Shelf) => {
         console.group('📚 Book added to shelf')
         console.log('Implement the logic to add the book to the shelf')
         console.log(book)
         console.groupEnd()
+        dispatch(updateShelfAsync({ isbn13, shelf }))
     }
 
     useEffect(() => {
         id && dispatch(fetchBookDetailsAsync(id))
-    }, [dispatch])
+    }, [id, dispatch])
 
     return (
         <Container className="md-6" style={{ marginTop: 20, marginBottom: 20, marginLeft: "auto", marginRight: "auto" }} >

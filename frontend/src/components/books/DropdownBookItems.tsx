@@ -6,7 +6,7 @@ import { DropdownButton } from 'react-bootstrap';
 
 export interface DropdownBookItemsProps {
     book: Book,
-    addToShelf: (book: Book) => void,
+    addToShelf: (isbn13: string, shelf: Shelf) => void,
 }
 
 const DropdownBookItems: React.FC<DropdownBookItemsProps> = ({ book, addToShelf }) => {
@@ -15,7 +15,7 @@ const DropdownBookItems: React.FC<DropdownBookItemsProps> = ({ book, addToShelf 
             {Object.values(Shelf).map((shelf) => (
                 shelf !== book.shelf && <Dropdown.Item
                     key={shelf}
-                    onClick={() => { addToShelf(book) }} >
+                    onClick={() => { addToShelf(book.isbn13 , shelf) }} >
                     {mapToLabel(shelf)}
                 </Dropdown.Item>
             ))}
@@ -31,7 +31,7 @@ const BookShelfSelector: React.FC<DropdownBookItemsProps> = ({ book, addToShelf 
     return (
         <>
             <DropdownButton id="dropdown-basic-button" title={shelfLabel} className='mt-2'>
-                <DropdownBookItems book={book} addToShelf={() => addToShelf(book)} />
+                <DropdownBookItems book={book} addToShelf={(isbn13, shelf) => addToShelf(isbn13, shelf)} />
             </DropdownButton>
         </>
     );
