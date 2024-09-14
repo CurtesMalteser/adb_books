@@ -7,7 +7,7 @@ from flask import abort, jsonify, Request
 from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME
 from app.exceptions.invalid_request_error import InvalidRequestError
 
-from app.models.book_dto import BookResponse, BookDto, db, username
+from app.models.book_dto import BookResponse, BookDto, db
 from app.models.book import Book
 
 from requests import (
@@ -67,7 +67,11 @@ def store_book(payload, request: Request):
                 db.session.add(book)
 
             # Link the book to the user's shelf (BookShelf table)
-            new_book_shelf = BookShelf(isbn13=book.isbn13, shelf=book.shelf, userID=user_id)
+            new_book_shelf = BookShelf(
+                isbn13=book.isbn13,
+                shelf=ShelfEnum.from_str(book.shelf),
+                user_id=user_id
+            )
             db.session.add(new_book_shelf)
 
             # Commit all changes in one go
@@ -83,6 +87,7 @@ def store_book(payload, request: Request):
 
         except Exception as e:
             # TODO: Define specific exceptions and use the custom error handler for 422 errors.
+            print(f'🧨 {e}')
             db.session.rollback()
             abort(422)
 
@@ -170,8 +175,8 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
 
                 return jsonify({
                     "success": True,
-                     "error": 200
-                     })
+                    "error": 200
+                })
             else:
                 raise InvalidRequestError(code=409,
                                           message=f'Shelf not found for the given user and ISBN-13. Try add to shelf first')
