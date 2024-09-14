@@ -39,3 +39,10 @@ class BookShelf(db.Model):
         self.isbn13 = isbn13
         self.userID = user_id
         self.shelf = shelf
+
+    @staticmethod
+    def get_or_none(book_id, user_id):
+        return BookShelf.query.filter_by(
+            isbn13=book_id,
+            userID=user_id
+        ).one_or_none()

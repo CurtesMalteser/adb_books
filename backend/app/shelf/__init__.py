@@ -22,8 +22,8 @@ def add_book(payload):
 @cross_origin()
 @requires_auth('book:get_details')
 def fetch_book(payload, book_id: str):
-    print(f'👤 {payload}')
-    return get_book(book_id)
+    user_id = payload.get('sub')
+    return get_book(user_id=user_id, book_id=book_id)
 
 
 @shelf_bp.route('/book/<string:book_id>', methods=['DELETE'])

@@ -23,6 +23,9 @@ from app.redis_config import redis_client
 api_key = os.environ.get('ISBNDB_KEY')
 user_agent = os.environ.get('USER_AGENT')
 
+def _set_shelf(book, book_shelf):
+    if book_shelf is not None:
+        book.shelf = ShelfEnum.to_str(book_shelf.shelf)
 
 def store_book(payload, request: Request):
     user_id = payload.get('sub')
@@ -98,8 +101,11 @@ def store_book(payload, request: Request):
         abort(404, "Content type is not supported.")
 
 
-def get_book(book_id: str):
+def get_book(user_id: str, book_id: str):
     """
+    :param user_id: User ID obtained from the JWT token
+    :type user_id: str
+
     :param book_id: ISBN13
     :type book_id: str
 
@@ -117,16 +123,26 @@ def get_book(book_id: str):
     try:
         book = redis_client.get(book_id)
 
+        book_shelf = BookShelf.get_or_none(book_id, user_id)
+
         if book is None:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             json_response = response.json().get('book')
 
-            book = Book.from_json(d=json_response).to_dict()
+            book = Book.from_json(d=json_response)
+            _set_shelf(book, book_shelf)
+            book = book.to_dict()
+
             redis_client.set(book_id, json.dumps(book), ex=REDIS_EXPIRY_TIME)
 
         else:
             book = json.loads(book)
+            book = Book.from_json(d=book)
+
+            _set_shelf(book, book_shelf)
+
+            book = book.to_dict()
 
         return jsonify(
             {
@@ -160,12 +176,20 @@ def remove_book(book_id: str):
 
 
 def update_book_shelf(user_id: str, book_id: str, request: Request):
+    """
+    :param user_id: User ID obtained from the JWT token
+    :type user_id: str
+    :param book_id: ISBN13 of the book from path parameter
+    :type book_id: str
+    :param request: Request object which contains the JSON payload "shelf"
+    :type request: Request
+
+    :return: response object
+    :rtype: flask.Response
+    """
     try:
         if request.is_json:
-            book_shelf = BookShelf.query.filter_by(
-                isbn13=book_id,
-                userID=user_id
-            ).one_or_none()
+            book_shelf = BookShelf.get_or_none(book_id, user_id)
 
             if book_shelf is not None:
                 shelf = ShelfEnum.from_str(request.get_json().get('shelf'))
@@ -191,3 +215,4 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
 
     finally:
         db.session.close()
+

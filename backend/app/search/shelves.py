@@ -1,6 +1,5 @@
 from flask import (
     request,
-    jsonify,
     abort,
 )
 from app.exceptions.invalid_request_error import InvalidRequestError
