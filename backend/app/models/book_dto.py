@@ -47,15 +47,13 @@ class BookDto(db.Model):
     title = mapped_column(String, nullable=False)
     authors = Column(ARRAY(String), nullable=False)
     image = db.Column(String, nullable=True, default=None)
-    shelf = db.Column(String, nullable=True, default=None)
 
     # @TODO: delete shelf, not used
-    def __init__(self, isbn13, title, authors, image, shelf):
+    def __init__(self, isbn13, title, authors, image):
         self.isbn13 = isbn13
         self.title = title
         self.authors = authors
         self.image = image
-        self.shelf = shelf
 
     def insert(self):
         db.session.add(self)

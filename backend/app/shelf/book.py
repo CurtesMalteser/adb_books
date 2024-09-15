@@ -65,14 +65,13 @@ def store_book(payload, request: Request):
                     title=book_request.title,
                     authors=book_request.authors,
                     image=book_request.image,
-                    shelf=book_request.shelf
                 )
                 db.session.add(book)
 
             # Link the book to the user's shelf (BookShelf table)
             new_book_shelf = BookShelf(
                 isbn13=book.isbn13,
-                shelf=ShelfEnum.from_str(book.shelf),
+                shelf=ShelfEnum.from_str(book_request.shelf),
                 user_id=user_id
             )
             db.session.add(new_book_shelf)
