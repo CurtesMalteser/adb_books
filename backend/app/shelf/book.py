@@ -158,10 +158,11 @@ def get_book(user_id: str, book_id: str):
         abort(500, description=f"An error occurred while fetching data: {str(e)}")
 
 
-def remove_book(book_id: str):
+def remove_book(user_id: str, book_id: str):
     try:
-        book_dto = BookDto.query.filter(BookDto.bookId == book_id).one_or_none()
-        if book_dto is not None: book_dto.delete()
+        book_shelf = BookShelf.get_or_none(user_id=user_id, book_id=book_id)
+        db.session.delete(book_shelf)
+        db.session.commit()
 
     except:
         db.session.rollback()

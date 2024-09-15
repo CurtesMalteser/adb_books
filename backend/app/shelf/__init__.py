@@ -30,8 +30,8 @@ def fetch_book(payload, book_id: str):
 @cross_origin()
 @requires_auth('book:delete_shelf')
 def delete_book(payload, book_id: str):
-    print(f'👤 {payload}')
-    return remove_book(book_id)
+    user_id = payload.get('sub')
+    return remove_book(user_id=user_id, book_id=book_id)
 
 
 @shelf_bp.route('/book/<string:book_id>', methods=['PATCH'])

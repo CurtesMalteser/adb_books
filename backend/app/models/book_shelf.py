@@ -11,11 +11,11 @@ from sqlalchemy import (Column,
                         ForeignKey,
                         Enum,
                         UniqueConstraint,
-                        Integer,
+                        Integer, event,
                         )
 
 from app.models.shelf import ShelfEnum
-from app.models.book_dto import db
+from app.models.book_dto import db, BookDto
 
 
 class BookShelf(db.Model):
@@ -46,3 +46,20 @@ class BookShelf(db.Model):
             isbn13=book_id,
             userID=user_id
         ).one_or_none()
+
+
+def _delete_book_if_orphaned(isbn13):
+    # Check if any BookShelf entries are left for this ISBN
+    remaining_shelves = BookShelf.query.filter_by(isbn13=isbn13).count()
+    if remaining_shelves == 0:
+        # If no shelves are left for the book, delete the book
+        book = BookDto.query.filter_by(isbn13=isbn13).one_or_none()
+        if book:
+            db.session.delete(book)
+
+@event.listens_for(db.session, 'after_flush')
+def check_for_orphaned_books(session, flush_context):
+    # Call your orphan check logic here
+    for obj in session.deleted:
+        if isinstance(obj, BookShelf):
+            _delete_book_if_orphaned(obj.isbn13)
