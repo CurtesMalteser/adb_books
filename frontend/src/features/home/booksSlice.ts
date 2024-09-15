@@ -19,8 +19,8 @@ const initialState: BooksState = {
 export const searchBooksAsync = createAsyncThunk(
     'books/searchBooks',
     async (payload: {searchTerm: string, maxResults: number}) => {
-        const response = await searchBooks(payload.searchTerm, payload.maxResults);
-        return response;
+        if(payload.searchTerm === '') return [];
+        else return searchBooks(payload.searchTerm, payload.maxResults);
     }
 )
 
@@ -39,6 +39,7 @@ export const booksSlice = createSlice({
         })
         .addCase(searchBooksAsync.rejected, (state, action) => {
             state.status = Status.FAILED;
+            state.books = [];
             state.error = action.error.message || 'An error occurred';
         })
     }
@@ -46,5 +47,6 @@ export const booksSlice = createSlice({
 
 export const statusSelector = (state: RootState) => state.searchBooks.status;
 export const booksSelector = (state: RootState) => state.searchBooks.books;
+export const errorSelector = (state: RootState) => state.searchBooks.error;
 
 export default booksSlice.reducer;

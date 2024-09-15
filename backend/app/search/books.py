@@ -10,6 +10,7 @@ import requests
 from requests import (
     JSONDecodeError,
     RequestException,
+    HTTPError,
 )
 
 from app.config import (
@@ -62,8 +63,14 @@ def books(user_agent):
             }
         )  # Flask's jsonify adds the correct content type headers automatically
 
-    except JSONDecodeError:
+    except JSONDecodeError as e:
         abort(500, description="Invalid JSON response from upstream server.")
+
+    except HTTPError as e:
+        if e.response.status_code == 404:
+            abort(404, description="Resource not found.")
+        else:
+            abort(500, description=f"An error occurred while fetching data: {str(e)}")
 
     except RequestException as e:
         abort(500, description=f"An error occurred while fetching data: {str(e)}")
