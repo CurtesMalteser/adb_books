@@ -9,6 +9,7 @@ import {
 import Book from '../../components/books/Book';
 import BookShelf from '../../components/books/BookShelf';
 import { Status } from '../../constants/Status';
+import { Container } from 'react-bootstrap';
 
 const showBooks = (fiction: Book[], nonFiction: Book[]) => {
     return (
@@ -31,11 +32,11 @@ const NYTimesBestsellers = () => {
     }, [dispatch]);
 
     return (
-        <>
+        <Container style={{ marginTop: 20, marginBottom: 20, }}>
             <h2>NY Times Bestsellers</h2>
             {status === Status.LOADING && <h1>Loading...</h1>}
             {status === Status.IDLE && showBooks(fiction, nonFiction)}
-        </>
+        </Container>
     );
 };
 

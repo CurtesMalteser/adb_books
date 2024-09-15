@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import Book from "../../components/books/Book";
 import {
     fetchReadBooklist,
@@ -10,7 +10,7 @@ import { RootState } from "../../app/store";
 import { Status } from "../../constants/Status";
 import { firstValueFrom, forkJoin, map } from "rxjs";
 
-interface Shelves {
+export interface Shelves {
     read: Book[];
     wantToRead: Book[];
     currentlyReading: Book[];
@@ -75,5 +75,13 @@ export const booklistSlice = createSlice({
 
 export const statusSelector = (state: RootState) => state.searchBooks.status;
 export const shelvesSelector = (state: RootState) => state.myBooklist.shelves;
+export const shelvesAreEmptySelector = createSelector(
+    (state: RootState) => [
+        state.myBooklist.shelves.read.length,
+        state.myBooklist.shelves.wantToRead.length,
+        state.myBooklist.shelves.currentlyReading.length
+    ],
+    (shelvesLengths) => shelvesLengths.every(length => length === 0)
+)
 
 export default booklistSlice.reducer;

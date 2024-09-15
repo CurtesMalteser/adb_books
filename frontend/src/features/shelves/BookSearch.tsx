@@ -57,12 +57,6 @@ const BookSearch: React.FC<BookSearchProps> = ({ searchSubject, booksSelector, s
                 </Col>
             </Row>
             {(books?.length > 0) && <div style={{ marginTop: 20 }}>
-                {
-                    /*
-                    TODO make a BookUI or something similar and map only what the UI expects her
-                    -> BookShelfContext replace with slices as arg to query search/books and search/shelves
-                    */
-                }
                 <BookShelf title={`Search Results: ${books.length}`} books={books} />
             </div>}
         </Container>
