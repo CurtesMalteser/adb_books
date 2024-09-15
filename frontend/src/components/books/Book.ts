@@ -15,12 +15,11 @@ export interface IndustryIdentifier {
 
 export enum Shelf {
     READ = "read",
-    WANT_TO_READ = "wantToRead",
-    CURRENTLY_READING = "currentlyReading"
+    WANT_TO_READ = "want-to-read",
+    CURRENTLY_READING = "currently-reading"
 }
 
 interface Book {
-    id: string;
     title: string;
     subtitle: string;
     authors: string[];
@@ -32,10 +31,8 @@ interface Book {
     rating: number;
     synopsis: string;
     pages: number;
-    msrp: number;
     isbn: string;
     isbn13: string;
-    language: string;
 }
 
 export function parseBook(data: any): Book {

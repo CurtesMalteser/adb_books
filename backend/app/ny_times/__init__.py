@@ -20,7 +20,7 @@ def fetch_fiction():
     :return: JSON array of books if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
-    return fetch_books(path=FICTION_PATH, list_name='Combined Print and E-Book Fiction')
+    return fetch_books(path=FICTION_PATH)
 
 
 @ny_times_bp.route('/ny-times/best-sellers/non-fiction')
@@ -33,4 +33,4 @@ def fetch_non_fiction():
     :return: JSON array of books if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
-    return fetch_books(path=NON_FICTION_PATH, list_name='Combined Print & E-Book Nonfiction')
+    return fetch_books(path=NON_FICTION_PATH)

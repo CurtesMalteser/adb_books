@@ -28,3 +28,4 @@ htmlcov/
 .direnv
 
 .github/**
+/dump.rdb

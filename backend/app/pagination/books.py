@@ -4,7 +4,7 @@ from flask import (
 )
 
 from app.config import DEFAULT_PAGE, DEFAULT_LIMIT
-from app.models.book import Book
+from app.models.book_dto import BookResponse
 
 
 def paginate(request, query):
@@ -34,29 +34,20 @@ def paginate(request, query):
         abort(500)
 
     total_results = len(data_books)
-    data_books = map(lambda book: Book(
-        isbn = book.isbn,
-        isbn13 = book.isbn13,
-        title = book.title,
-        subtitle = book.subtitle,
-        authors = book.authors,
-        image = book.image,
-        rating = book.rating,
-        msrp = book.msrp,
-        language = book.language,
-        publisher = book.publisher,
-        date_published = book.date_published,
+    data_books = map(lambda book: BookResponse(
+        isbn13=book.isbn13,
+        title=book.title,
+        authors=book.authors,
+        image=book.image,
+        shelf=None,
     ), data_books)
 
     data_books = list(data_books)[start:end]
 
-    if len(data_books) > 0:
-        return jsonify({
-            'success': True,
-            'books': data_books,
-            'page': page,
-            'limit': size,
-            'total_results': total_results
-        })
-    else:
-        return None
+    return jsonify({
+        'success': True,
+        'books': data_books,
+        'page': page,
+        'limit': size,
+        'total_results': total_results
+    })

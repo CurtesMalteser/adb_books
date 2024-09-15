@@ -3,6 +3,7 @@ import Book from "../../components/books/Book";
 import { Status } from "../../constants/Status";
 import { fetchFiction, fetchNonFiction } from "../../utils/BooksAPI";
 import { RootState } from "../../app/store";
+import { forkJoin, firstValueFrom } from "rxjs";
 
 interface BestsellerState {
     nonFiction: Book[];
@@ -21,15 +22,12 @@ const initialState: BestsellerState = {
 export const fetchBestsellersAsync = createAsyncThunk(
     'nytimes/fetchBestsellers',
     async () => {
-        const [fictionResponse, nonFictionResponse] = await Promise.all([
-            fetchFiction(),
-            fetchNonFiction()
-        ]);
-
-        return {
-            fiction: fictionResponse,
-            nonFiction: nonFictionResponse
-        };
+        return await firstValueFrom(
+            forkJoin({
+                fiction: fetchFiction(),
+                nonFiction: fetchNonFiction()
+            })
+        );
     }
 );
 
