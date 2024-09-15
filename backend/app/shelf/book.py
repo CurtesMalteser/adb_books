@@ -23,9 +23,13 @@ from app.redis_config import redis_client
 api_key = os.environ.get('ISBNDB_KEY')
 user_agent = os.environ.get('USER_AGENT')
 
-def _set_shelf(book, book_shelf):
+
+def _get_shelf_or_none(book_shelf):
     if book_shelf is not None:
-        book.shelf = ShelfEnum.to_str(book_shelf.shelf)
+        return ShelfEnum.to_str(book_shelf.shelf)
+    else:
+        return None
+
 
 def store_book(payload, request: Request):
     user_id = payload.get('sub')
@@ -130,23 +134,24 @@ def get_book(user_id: str, book_id: str):
             json_response = response.json().get('book')
 
             book = Book.from_json(d=json_response)
-            _set_shelf(book, book_shelf)
-            book = book.to_dict()
+            book_dict = book.to_dict()
 
-            redis_client.set(book_id, json.dumps(book), ex=REDIS_EXPIRY_TIME)
+            redis_client.set(book_id, json.dumps(book_dict), ex=REDIS_EXPIRY_TIME)
+
+            book_dict['shelf'] = _get_shelf_or_none(book_shelf)
 
         else:
             book = json.loads(book)
             book = Book.from_json(d=book)
 
-            _set_shelf(book, book_shelf)
+            book.shelf = _get_shelf_or_none(book_shelf)
 
-            book = book.to_dict()
+            book_dict = book.to_dict()
 
         return jsonify(
             {
                 "success": True,
-                "book": book,
+                "book": book_dict,
             }
         )
 
@@ -215,4 +220,3 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
 
     finally:
         db.session.close()
-
