@@ -8,7 +8,7 @@ import {
 } from "../../utils/BooksAPI";
 import { RootState } from "../../app/store";
 import { Status } from "../../constants/Status";
-import { firstValueFrom, forkJoin, map } from "rxjs";
+import { firstValueFrom, forkJoin } from "rxjs";
 
 export interface Shelves {
     read: Book[];
@@ -77,9 +77,9 @@ export const statusSelector = (state: RootState) => state.searchBooks.status;
 export const shelvesSelector = (state: RootState) => state.myBooklist.shelves;
 export const shelvesAreEmptySelector = createSelector(
     (state: RootState) => [
-        state.myBooklist.shelves.read.length,
-        state.myBooklist.shelves.wantToRead.length,
-        state.myBooklist.shelves.currentlyReading.length
+        state.myBooklist.shelves.read?.length || 0,
+        state.myBooklist.shelves.wantToRead?.length || 0,
+        state.myBooklist.shelves.currentlyReading?.length || 0,
     ],
     (shelvesLengths) => shelvesLengths.every(length => length === 0)
 )
