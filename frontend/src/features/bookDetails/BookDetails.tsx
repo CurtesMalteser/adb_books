@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { bookSelector, fetchBookDetailsAsync, removeFromShelfAsync, statusSelector, updateShelfAsync } from "./bookDetailsSlice";
 import { useEffect } from "react";
 import { Status } from "../../constants/Status";
+import Loader from "../loader/Loader";
 
 // TODO: add slice and thunk to update book on BE
 function BookDetails() {
@@ -40,7 +41,7 @@ function BookDetails() {
 
     return (
         <Container className="md-6" style={{ marginTop: 20, marginBottom: 20, marginLeft: "auto", marginRight: "auto" }} >
-            {status === Status.LOADING && <h1>Loading...</h1>}
+            {status === Status.LOADING && <Loader />}
             {status === Status.FAILED && <h1>Error...</h1>}
             {status === Status.IDLE &&
                 <Row md={8}>

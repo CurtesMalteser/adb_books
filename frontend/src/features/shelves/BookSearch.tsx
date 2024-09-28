@@ -70,7 +70,10 @@ const BookSearch: React.FC<BookSearchProps> = ({
             {(books?.length > 0) && <div style={{ marginTop: 20 }}>
                 <BookShelf title={`Search Results: ${books.length}`} books={books} />
             </div>}
-            {status === Status.LOADING && <h1>Loading...</h1>}
+            {
+                // Show nice loading, possibly a book card with lottie book animation
+                status === Status.LOADING && <h1>Loading...</h1>
+            }
             {error && <h1>No books found</h1>}
         </Container>
     );

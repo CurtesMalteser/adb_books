@@ -12,6 +12,7 @@ import { Status } from '../../constants/Status';
 import { Card, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ROUTES from '../../constants/Routes';
+import Loader from '../loader/Loader';
 
 const MyBooklistContent: React.FC<Shelves> = ({ read, wantToRead, currentlyReading }) => {
   return (
@@ -52,7 +53,7 @@ function MyBooklist() {
 
   return (
     <>
-      {status === Status.LOADING && <h1>Loading...</h1>}
+      {status === Status.LOADING && <Loader />}
       {status === Status.IDLE && (shelvesAreEmpty ? <MyBooklistEmpty /> : <MyBooklistContent {...shelves} />)}
       {status === Status.FAILED && <h1>Error...</h1>}
     </>

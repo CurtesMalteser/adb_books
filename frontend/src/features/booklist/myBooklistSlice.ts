@@ -62,26 +62,29 @@ export const booklistSlice = createSlice({
             state.status = Status.LOADING;
             state.error = null;
         }).addCase(fetchBooklistAsync.fulfilled, (state, action) => {
-            state.status = Status.IDLE;
-            state.error = null;
             state.shelves = action.payload;
+            state.error = null;
+            state.status = Status.IDLE;
         })
             .addCase(fetchBooklistAsync.rejected, (state, action) => {
-                state.status = Status.FAILED;
                 state.error = action.error.message || 'An error occurred';
+                state.status = Status.FAILED;
             })
     }
 })
 
 export const statusSelector = (state: RootState) => state.searchBooks.status;
 export const shelvesSelector = (state: RootState) => state.myBooklist.shelves;
+
+const readShelfLengthSelector = (state: RootState) => state.myBooklist.shelves.read?.length || 0;
+const wantToReadShelfLengthSelector = (state: RootState) => state.myBooklist.shelves.wantToRead?.length || 0;
+const currentlyReadingShelfLengthSelector = (state: RootState) => state.myBooklist.shelves.currentlyReading?.length || 0;
+
 export const shelvesAreEmptySelector = createSelector(
-    (state: RootState) => [
-        state.myBooklist.shelves.read?.length || 0,
-        state.myBooklist.shelves.wantToRead?.length || 0,
-        state.myBooklist.shelves.currentlyReading?.length || 0,
-    ],
-    (shelvesLengths) => shelvesLengths.every(length => length === 0)
+    [readShelfLengthSelector, wantToReadShelfLengthSelector, currentlyReadingShelfLengthSelector],
+    (readLength, wantToReadLength, currentlyReadingLength) => {
+        return readLength === 0 && wantToReadLength === 0 && currentlyReadingLength === 0;
+    }
 )
 
 export default booklistSlice.reducer;
