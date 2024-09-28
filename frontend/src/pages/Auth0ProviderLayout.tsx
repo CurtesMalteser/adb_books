@@ -3,7 +3,7 @@ import Header from '../components/header/Header';
 import { Auth0ProviderWithNavigate } from '../features/auth/Auth0ProviderWithNavigate';
 
 
-function RouteLayout() {
+function Auth0ProviderLayout() {
     return (
         <Auth0ProviderWithNavigate>
             <Header />
@@ -14,4 +14,4 @@ function RouteLayout() {
     )
 }
 
-export default RouteLayout;
+export default Auth0ProviderLayout;

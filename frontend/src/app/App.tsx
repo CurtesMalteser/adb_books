@@ -1,7 +1,7 @@
 import './App.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import HomePage from '../features/home/Home';
-import RouteLayout from '../pages/RootLayout';
+import Auth0ProviderLayout from '../pages/Auth0ProviderLayout';
 import ErrorPage from '../pages/ErrorPage';
 import BookDetails from '../features/bookDetails/BookDetails';
 import MyBookList from '../features/booklist/MyBooklist';
@@ -13,7 +13,7 @@ import CallbackPage from '../features/auth/CallbackPage';
 const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
-    element: <RouteLayout />,
+    element: <Auth0ProviderLayout />,
     errorElement: <ErrorPage />,
     children: [
       { path: ROUTES.HOME, element: <RequireAuth><HomePage /></RequireAuth> },
