@@ -57,3 +57,5 @@ Thank you to the Udacity team for providing the API server.
 Special thank you to Maximilian Schwarzmüller, for the extra curricular and companion course which helped me understand React better: *React - The Complete Guide 2024 (incl. React Router & Redux)*. 
 
 Also, thank you to the authors of the books that are displayed in the app.
+
+Thanks to LottieFiles for the animations.

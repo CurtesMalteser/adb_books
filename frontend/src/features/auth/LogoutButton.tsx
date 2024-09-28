@@ -8,7 +8,6 @@ const LogoutButton = () => {
     const { logout, user } = useAuth0();
     const navigate = useNavigate();
 
-
     return (
         <>
             {user &&
