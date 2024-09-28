@@ -23,7 +23,7 @@ const router = createBrowserRouter([
         element: <RequireAuth><BookDetails /></RequireAuth>,
       },
       { path: ROUTES.LOGIN, element: <Login /> },
-      { path: ROUTES.LOGIN, element: <CallbackPage /> },
+      { path: ROUTES.LOGIN_CALLBACK, element: <CallbackPage /> },
     ]
   },
 ])
