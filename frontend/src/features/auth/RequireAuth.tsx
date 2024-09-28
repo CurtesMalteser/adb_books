@@ -4,6 +4,7 @@ import {
 } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 import ROUTES from '../../constants/Routes';
+import Loader from '../loader/Loader';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
 
@@ -11,7 +12,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (!isAuthenticated) {
