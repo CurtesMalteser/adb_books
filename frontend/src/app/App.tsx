@@ -9,6 +9,7 @@ import ROUTES from '../constants/Routes';
 import RequireAuth from '../features/auth/RequireAuth';
 import Login from '../features/auth/Login';
 import CallbackPage from '../features/auth/CallbackPage';
+import Profile from '../features/Profile';
 
 const router = createBrowserRouter([
   {
@@ -24,12 +25,12 @@ const router = createBrowserRouter([
       },
       { path: ROUTES.LOGIN, element: <Login /> },
       { path: ROUTES.LOGIN_CALLBACK, element: <CallbackPage /> },
+      { path: ROUTES.PROFILE, element: <RequireAuth><Profile /></RequireAuth> },
     ]
   },
 ])
 
 function App() {
-
   return (
     <RouterProvider router={router} />
   )
