@@ -13,9 +13,9 @@ const LogoutButton = () => {
             {user &&
                 <div
                     className="d-flex"
-                    style={{ marginRight: '24px' }}
+                    style={{ marginRight: '8px' }}
                     onClick={() => navigate(ROUTES.PROFILE)}>
-                    <Image style={{ width: '50px', height: '50px', marginRight: '10px' }}
+                    <Image style={{ width: '40px', height: '40px' }}
                         src={user.picture}
                         alt={`Profile Picture ${user.name}`}
                         roundedCircle />
