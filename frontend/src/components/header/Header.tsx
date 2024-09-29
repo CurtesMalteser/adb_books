@@ -7,6 +7,7 @@ import LogoutButton from '../../features/auth/LogoutButton';
 import LoginButton from '../../features/auth/LoginButton';
 import { useEffect } from 'react';
 import { initAuth } from '../../features/auth/authUtils';
+import DarkModeToggle from '../../features/dark-mode/DarkModeToggle';
 
 function NavMenu() {
 
@@ -25,6 +26,7 @@ function NavMenu() {
       <Nav.Item>
         <Nav.Link as={Link} to={ROUTES.MY_BOOKLIST} eventKey="my-book-list">My Booklist</Nav.Link>
       </Nav.Item>
+      <DarkModeToggle />
       {isAuthenticated && <LogoutButton />}
       {!isAuthenticated && <LoginButton />}
     </Nav>
