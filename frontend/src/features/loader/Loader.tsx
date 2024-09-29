@@ -1,8 +1,11 @@
 import Lottie from "lottie-react";
-import animationData from '../../assets/lotties/calm_light.json';
+import lightAnimationData from '../../assets/lotties/calm_light.json';
+import darkAnimationData from '../../assets/lotties/calm_dark.json';
 import { useEffect, useState } from "react";
 import './Loader.css';
 import { Container } from "react-bootstrap";
+import { isDarkModeSelector } from "../dark-mode/darkModeSlice";
+import { useAppSelector } from "../../app/hooks";
 
 function Loader() {
 
@@ -23,6 +26,10 @@ function Loader() {
     const [currentMessage, setCurrentMessage] = useState(messages[0]);
     const [messageIndex, setMessageIndex] = useState(0);
 
+    const isDarkMode = useAppSelector(isDarkModeSelector);
+
+    const animationData = () => isDarkMode ? darkAnimationData : lightAnimationData;
+
     useEffect(() => {
         const messageInterval = setInterval(() => {
             setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
@@ -41,7 +48,7 @@ function Loader() {
             <div className="lottie-container">
                 <Lottie
                     className="lottie-animation"
-                    animationData={animationData}
+                    animationData={animationData()}
                     loop={true}
                     autoplay={true}
                     rendererSettings={
