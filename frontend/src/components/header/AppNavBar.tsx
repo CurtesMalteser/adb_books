@@ -23,7 +23,7 @@ function AppNavBar() {
   return (
     <Navbar expand="lg" className="navbar-dark bg-primary" style={{ height: "56px", marginBottom: "48px" }} >
       <Container>
-        <Nav variant="pills" defaultActiveKey="home" className='justify-content-center d-flex align-items-center'>
+        <Nav variant="pills" defaultActiveKey="home" className='justify-content-center flex-grow-1 align-items-center'>
           <Navbar.Brand as={Link} to={ROUTES.HOME} >Book Management App</Navbar.Brand>
           <Nav.Item>
             <Nav.Link as={Link} to={ROUTES.HOME} eventKey="home">Home</Nav.Link>
@@ -31,10 +31,10 @@ function AppNavBar() {
           <Nav.Item>
             <Nav.Link as={Link} to={ROUTES.MY_BOOKLIST} eventKey="my-book-list">My Booklist</Nav.Link>
           </Nav.Item>
+          <div className="flex-grow-1"/>
           <Avatar />
         </Nav>
-        <div className="d-flex ml-auto">
-          
+          <div className="d-flex align-items-center">
           {!isLoading && isAuthenticated && <LogoutButton />}
           {!isLoading && !isAuthenticated && <LoginButton />}
           <DarkModeToggle />
