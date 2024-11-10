@@ -6,7 +6,6 @@ const BookDetailsError = () => {
     return (
         <>
             <div className='error-container'>
-
             <h2>We couldn't find the book you're looking for...</h2>
             <a href={ROUTES.HOME}>Go back to the home page</a>
             </div>
