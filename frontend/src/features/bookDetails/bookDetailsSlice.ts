@@ -18,9 +18,13 @@ const initialState: BookDetailsState = {
 
 export const fetchBookDetailsAsync = createAsyncThunk(
     'bookDetails/fetchBook',
-    async (id: string) => {
-        const response = getBook(id)
-        return response;
+    async (id: string, { rejectWithValue }) => {
+        const response = await getBook(id)
+        if(response) {
+            return response;
+        } else {
+            return rejectWithValue("Could not fetch book details");
+        }
     }
 )
 
@@ -76,7 +80,7 @@ export const bookDetailsSlice = createSlice({
         })
         .addCase(fetchBookDetailsAsync.rejected, (state, action) => {
             state.status = Status.FAILED;
-            state.error = action.error.message || 'An error occurred';
+            state.error = (action.payload as string) || action.error.message || 'An error occurred';
         })
         .addCase(updateShelfAsync.pending, (state) => {
             state.status = Status.LOADING;

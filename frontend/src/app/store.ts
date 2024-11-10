@@ -3,6 +3,7 @@ import booksReducer from '../features/home/booksSlice';
 import nytimesReducer from '../features/bestseller/NYTimesSlice';
 import myBooklistReducer from '../features/booklist/myBooklistSlice';
 import bookDetailsReducer from '../features/bookDetails/bookDetailsSlice';
+import darkModeReducer from '../features/dark-mode/darkModeSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     nytimes: nytimesReducer,
     myBooklist: myBooklistReducer,
     bookDetails: bookDetailsReducer,
+    darkMode: darkModeReducer,
   },
 });
 

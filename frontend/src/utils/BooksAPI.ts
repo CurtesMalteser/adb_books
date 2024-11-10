@@ -30,7 +30,8 @@ const performFetch = (url: string, options: RequestInit = {}) => firstValueFrom(
         })
       )
     })
-  ));
+  )
+);
 
 export const fetchReadBooklist = () => performFetch(`${api}/booklist/read`)
   .then((data) => data.books);

@@ -1,0 +1,27 @@
+:root {
+    --icon-width: 24px;
+    --icon-height: 24px;
+  }
+
+.icon-size {
+    width: var(--icon-width);
+    height: var(--icon-height);
+}
+
+.dark-mode-dropdown path {
+    width: var(--icon-width);
+    height: var(--icon-height);
+    fill: var(--bs-white);
+}
+
+.dark-mode-toggle path {
+    width: var(--icon-width);
+    height: var(--icon-height);
+    fill: light-dark(var(--bs-body-color), var(--bs-white));
+}
+
+.dark-mode-toggle-selected path {
+    width: var(--icon-width);
+    height: var(--icon-height);
+    fill: var(--bs-white);
+}
