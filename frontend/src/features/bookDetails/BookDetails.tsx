@@ -11,6 +11,7 @@ import { bookSelector, fetchBookDetailsAsync, removeFromShelfAsync, statusSelect
 import { useEffect } from "react";
 import { Status } from "../../constants/Status";
 import Loader from "../loader/Loader";
+import BookDetailsError from "./BookDetailsError";
 
 // TODO: add slice and thunk to update book on BE
 function BookDetails() {
@@ -42,7 +43,7 @@ function BookDetails() {
     return (
         <Container className="md-6" style={{ marginTop: 20, marginBottom: 20, marginLeft: "auto", marginRight: "auto" }} >
             {status === Status.LOADING && <Loader />}
-            {status === Status.FAILED && <h1>Error...</h1>}
+            {status === Status.FAILED && <BookDetailsError />}
             {status === Status.IDLE &&
                 <Row md={8}>
                     {
