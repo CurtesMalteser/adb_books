@@ -14,10 +14,11 @@ from .models.book_dto import *
 from .ny_times import ny_times_bp
 from .search import search_bp
 
+from .models.curated_list import CuratedList
+from .models.curated_pick import  CuratedPick
 from .models.user import User
 from .models.book_shelf import BookShelf
 from .shelf import shelf_bp
-
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)

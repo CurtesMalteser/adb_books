@@ -18,6 +18,7 @@ db_path = os.environ.get('DB_PATH')
 db_path = db_path.replace('USER', username)
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 '''
 setup_db(app)
@@ -30,11 +31,7 @@ def setup_db(app, database_path=db_path):
         app.config["SQLALCHEMY_DATABASE_URI"] = database_path
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db.init_app(app)
-
-        migrate = Migrate(app, db)
-
-        with app.app_context():
-            db.create_all()
+        migrate.init_app(app, db=db)
 
 class BookDto(db.Model):
     """
