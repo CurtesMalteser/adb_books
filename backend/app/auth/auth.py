@@ -5,7 +5,7 @@ from urllib.request import urlopen
 
 from dotenv import load_dotenv, find_dotenv
 from flask import request
-from jose import jwt
+import jwt
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -146,13 +146,35 @@ def verify_decode_jwt(token):
         except jwt.ExpiredSignatureError as e:
             raise AuthError({
                 'code': 'token_expired',
-                'description': 'Token expired.'
+                'description': 'Token has expired.'
             }, 401) from e
 
-        except jwt.JWTClaimsError as e:
+        except jwt.InvalidAudienceError as e:
             raise AuthError({
-                'code': 'invalid_claims',
-                'description': 'Incorrect claims. Please, check the audience and issuer.'
+                'code': 'invalid_audience',
+                'description': 'Incorrect audience in the token.'
+            }, 401) from e
+
+        except jwt.InvalidIssuerError as e:
+            raise AuthError({
+                'code': 'invalid_issuer',
+                'description': 'Incorrect issuer in the token.'
+            }, 401) from e
+
+        except jwt.ImmatureSignatureError as e:
+            raise AuthError({
+                'code': 'token_not_yet_valid',
+                'description': 'Token is not yet valid (nbf claim).'
+            }, 401) from e
+        except jwt.DecodeError as e:
+            raise AuthError({
+                'code': 'decode_error',
+                'description': 'Token is malformed or corrupted.'
+            }, 401) from e
+        except jwt.InvalidTokenError as e:
+            raise AuthError({
+                'code': 'invalid_token',
+                'description': 'Invalid token.'
             }, 401) from e
 
         except Exception as e:
