@@ -1,4 +1,5 @@
 from flask import Blueprint
+from flask_cors import cross_origin
 
 from app.auth.auth import requires_auth
 from app.booklist.booklist import booklist
@@ -16,6 +17,7 @@ def _is_shelf(value):
 
 
 @booklist_bp.route('/booklist/<string:shelf>')
+@cross_origin()
 @requires_auth('booklist:get')
 def fetch_booklist(payload, shelf: str):
     user_id = payload.get('sub')

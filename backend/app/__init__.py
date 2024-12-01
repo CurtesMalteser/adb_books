@@ -13,6 +13,7 @@ from .models.book import Book
 from .models.book_dto import *
 from .ny_times import ny_times_bp
 from .search import search_bp
+from .curated_picks import curated_picks_bp
 
 from .models.curated_list import CuratedList
 from .models.curated_pick import  CuratedPick
@@ -36,6 +37,7 @@ def create_app(test_config=None):
     app.register_blueprint(ny_times_bp)
     app.register_blueprint(booklist_bp)
     app.register_blueprint(shelf_bp)
+    app.register_blueprint(curated_picks_bp)
 
     @app.after_request
     def after_request(response):
