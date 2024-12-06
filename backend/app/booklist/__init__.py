@@ -21,7 +21,6 @@ def _is_shelf(value):
 @requires_auth('booklist:get')
 def fetch_booklist(payload, shelf: str):
     user_id = payload.get('sub')
-    print(f'👤 {user_id}')
     if _is_shelf(shelf):
         return booklist(used_id=user_id, shelf=shelf)
     else:
