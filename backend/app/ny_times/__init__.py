@@ -14,7 +14,7 @@ ny_times_bp = Blueprint('ny-times', __name__)
 @ny_times_bp.route('/ny-times/best-sellers/fiction')
 @cross_origin()
 @requires_auth('booklist:get')
-def fetch_fiction():
+def fetch_fiction(_):
     """
     Data provided by The New York Times.
     For details visit: https://developer.nytimes.com.
@@ -26,9 +26,9 @@ def fetch_fiction():
 
 
 @ny_times_bp.route('/ny-times/best-sellers/non-fiction')
-@requires_auth('booklist:get')
 @cross_origin()
-def fetch_non_fiction():
+@requires_auth('booklist:get')
+def fetch_non_fiction(_):
     """
     Data provided by The New York Times.
     For details visit: https://developer.nytimes.com.

@@ -13,11 +13,11 @@ search_bp = Blueprint('search', __name__)
 @search_bp.route('/search/books')
 @cross_origin()
 @requires_auth('booklist:get')
-def search_books():
+def search_books(_):
     return books(user_agent=user_agent)
 
 @search_bp.route('/search/shelves')
 @cross_origin()
 @requires_auth('booklist:get')
-def search_shelves():
+def search_shelves(_):
     return shelves()

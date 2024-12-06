@@ -12,6 +12,7 @@ from app.models.book_dto import db
 
 target_metadata = db.metadata
 
+
 class CuratedList(db.Model):
     """
     A class that represents a curated list of books.

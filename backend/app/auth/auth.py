@@ -1,11 +1,11 @@
-import json
-from functools import wraps
+import logging
+from functools import wraps, lru_cache
 from os import environ as env
-from urllib.request import urlopen
 
+import jwt
 from dotenv import load_dotenv, find_dotenv
 from flask import request
-import jwt
+from jwt import PyJWKClient
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -14,6 +14,10 @@ if ENV_FILE:
 AUTH0_DOMAIN = env.get('AUTH0_DOMAIN')
 API_AUDIENCE = env.get('API_AUDIENCE')
 ALGORITHMS = ['RS256']
+
+# Logger setup
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class AuthError(Exception):
@@ -27,16 +31,7 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-## Auth Header
-
 def get_token_auth_header():
-    """
-    it should attempt to get the header from the request
-    it should raise an AuthError if no header is present
-    it should attempt to split bearer and the token
-    it should raise an AuthError if the header is malformed
-    return the token part of the header
-    """
     auth = request.headers.get('Authorization', None)
 
     if not auth:
@@ -65,23 +60,10 @@ def get_token_auth_header():
             'description': 'Authorization header must be bearer token.'
         }, 401)
 
-    token = parts[1]
-    return token
+    return parts[1]
 
 
 def check_permissions(permission, payload):
-    """
-    @TODO implement check_permissions(permission, payload) method
-        @INPUTS
-            permission: string permission (i.e. 'post:drink')
-            payload: decoded jwt payload
-
-        it should raise an AuthError if permissions are not included in the payload
-            !!NOTE check your RBAC settings in Auth0
-        it should raise an AuthError if the requested permission string is not in the
-            payload permissions array
-        return true otherwise
-    """
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
@@ -97,111 +79,58 @@ def check_permissions(permission, payload):
     return True
 
 
+@lru_cache(maxsize=1)
+def get_jwks_client():
+    return PyJWKClient(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
+
+
 def verify_decode_jwt(token):
-    """
-    @TODO implement verify_decode_jwt(token) method
-        @INPUTS
-            token: a json web token (string)
+    jwks_client = get_jwks_client()
+    signing_key = jwks_client.get_signing_key_from_jwt(token)
 
-        it should be an Auth0 token with key id (kid)
-        it should verify the token using Auth0 /.well-known/jwks.json
-        it should decode the payload from the token
-        it should validate the claims
-        return the decoded payload
+    try:
+        payload = jwt.decode(
+            token,
+            signing_key.key,  # Use the key property
+            audience=API_AUDIENCE,
+            algorithms=["RS256"],
+        )
+        return payload
 
-        !!NOTE urlopen has a common certificate error described here:
-        https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-    """
-    jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
-    jwks = json.loads(jsonurl.read())
-    unverified_header = jwt.get_unverified_header(token)
-    rsa_key = {}
-    if 'kid' not in unverified_header:
+    except jwt.ExpiredSignatureError:
+        raise AuthError({
+            'code': 'token_expired',
+            'description': 'Token has expired.'
+        }, 401)
+    except jwt.InvalidAudienceError:
+        raise AuthError({
+            'code': 'invalid_audience',
+            'description': 'Incorrect audience in the token.'
+        }, 401)
+    except jwt.InvalidIssuerError:
+        raise AuthError({
+            'code': 'invalid_issuer',
+            'description': 'Incorrect issuer in the token.'
+        }, 401)
+    except jwt.ImmatureSignatureError:
+        raise AuthError({
+            'code': 'token_not_yet_valid',
+            'description': 'Token is not yet valid (nbf claim).'
+        }, 401)
+    except jwt.DecodeError:
+        raise AuthError({
+            'code': 'decode_error',
+            'description': 'Token is malformed or corrupted.'
+        }, 401)
+    except Exception as e:
+        logger.error(f"Unexpected error during JWT decoding: {e}")
         raise AuthError({
             'code': 'invalid_header',
-            'description': 'Authorization malformed.'
-        }, 401)
-
-    for key in jwks['keys']:
-        if key['kid'] == unverified_header['kid']:
-            rsa_key = {
-                'kty': key['kty'],
-                'kid': key['kid'],
-                'use': key['use'],
-                'n': key['n'],
-                'e': key['e']
-            }
-    if rsa_key:
-        try:
-            payload = jwt.decode(
-                token,
-                rsa_key,
-                algorithms=ALGORITHMS,
-                audience=API_AUDIENCE,
-                issuer='https://' + AUTH0_DOMAIN + '/'
-            )
-
-            return payload
-
-        except jwt.ExpiredSignatureError as e:
-            raise AuthError({
-                'code': 'token_expired',
-                'description': 'Token has expired.'
-            }, 401) from e
-
-        except jwt.InvalidAudienceError as e:
-            raise AuthError({
-                'code': 'invalid_audience',
-                'description': 'Incorrect audience in the token.'
-            }, 401) from e
-
-        except jwt.InvalidIssuerError as e:
-            raise AuthError({
-                'code': 'invalid_issuer',
-                'description': 'Incorrect issuer in the token.'
-            }, 401) from e
-
-        except jwt.ImmatureSignatureError as e:
-            raise AuthError({
-                'code': 'token_not_yet_valid',
-                'description': 'Token is not yet valid (nbf claim).'
-            }, 401) from e
-        except jwt.DecodeError as e:
-            raise AuthError({
-                'code': 'decode_error',
-                'description': 'Token is malformed or corrupted.'
-            }, 401) from e
-        except jwt.InvalidTokenError as e:
-            raise AuthError({
-                'code': 'invalid_token',
-                'description': 'Invalid token.'
-            }, 401) from e
-
-        except Exception as e:
-            raise AuthError({
-                'code': 'invalid_header',
-                'description': 'Unable to parse authentication token.'
-            }, 400) from e
-
-    raise AuthError({
-        'code': 'invalid_header',
-        'description': 'Unable to find the appropriate key.'
-    }, 400)
+            'description': 'Unable to parse authentication token.'
+        }, 400) from e
 
 
 def requires_auth(permission=''):
-    """
-    @TODO implement @requires_auth(permission) decorator method
-        @INPUTS
-            permission: string permission (i.e. 'post:drink')
-
-        it should use the get_token_auth_header method to get the token
-        it should use the verify_decode_jwt method to decode the jwt
-        it should use the check_permissions method validate claims and check the requested
-        permission
-        return the decorator which passes the decoded payload to the decorated method
-    """
-
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
