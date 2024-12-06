@@ -27,13 +27,13 @@ def fetch_curated_lists(_):
     :return: JSON array of curated picks if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
-    pass
+    return 'Healthy curated lists'
 
 # todo: define route for setting curated pick
-@curated_picks_bp.route('/curated-lists', methods=['POST'])
+@curated_picks_bp.route('/curated-pick', methods=['POST'])
 @cross_origin()
 @requires_auth('booklist:curator')
-def add_curated_list(_):
+def add_curated_pick(_):
     """
     Adds a curated list.
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
@@ -51,4 +51,5 @@ def fetch_curated_picks(_):
     :return: JSON array of curated picks if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
-    pass
+    return 'Healthy curated picks'
+
