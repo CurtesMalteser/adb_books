@@ -55,10 +55,10 @@ def _delete_book_if_orphaned(isbn13):
         # If no shelves are left for the book, delete the book
         book = BookDto.query.filter_by(isbn13=isbn13).one_or_none()
         if book:
-            db.session.delete(book)
+            book.delete()
 
 @event.listens_for(db.session, 'after_flush')
-def check_for_orphaned_books(session, flush_context):
+def check_for_orphaned_books(session, _):
     # Call your orphan check logic here
     for obj in session.deleted:
         if isinstance(obj, BookShelf):

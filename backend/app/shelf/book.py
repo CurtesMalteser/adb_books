@@ -70,7 +70,8 @@ def store_book(payload, request: Request):
                     authors=book_request.authors,
                     image=book_request.image,
                 )
-                db.session.add(book)
+
+                book.insert()
 
             # Link the book to the user's shelf (BookShelf table)
             new_book_shelf = BookShelf(
@@ -78,6 +79,7 @@ def store_book(payload, request: Request):
                 shelf=ShelfEnum.from_str(book_request.shelf),
                 user_id=user_id
             )
+
             db.session.add(new_book_shelf)
 
             # Commit all changes in one go

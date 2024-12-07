@@ -45,7 +45,6 @@ class BookDto(db.Model):
     authors = Column(ARRAY(String), nullable=False)
     image = db.Column(String, nullable=True, default=None)
 
-    # @TODO: delete shelf, not used
     def __init__(self, isbn13, title, authors, image):
         self.isbn13 = isbn13
         self.title = title
@@ -75,7 +74,7 @@ class BookResponse:
     image: str
     shelf: Optional[str]
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """
         Converts the dataclass instance into a dictionary.
 
@@ -84,7 +83,7 @@ class BookResponse:
         return asdict(self)
 
     @classmethod
-    def from_json(cls, d: dict[str, str]):
+    def from_json(cls, d: dict[str, str]) -> 'BookResponse':
         """
         :param d: Book JSON dictionary
         :return: Book object
@@ -98,7 +97,7 @@ class BookResponse:
         )
 
     @classmethod
-    def from_ny_times_json(cls, d: dict[str, str]):
+    def from_ny_times_json(cls, d: dict[str, str]) -> 'BookResponse':
         """
         :param d: Book JSON dictionary
         :return: Book object

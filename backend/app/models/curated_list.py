@@ -1,6 +1,8 @@
 """
 This module contains the CuratedList model.
 """
+from dataclasses import dataclass
+
 from sqlalchemy import (
     Column,
     String,
@@ -8,6 +10,8 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import relationship
+
+from app.models.book import _get_from_key_or_raise
 from app.models.book_dto import db
 
 target_metadata = db.metadata
@@ -26,3 +30,52 @@ class CuratedList(db.Model):
 
     # Relationship to CuratedPick
     curated_picks = relationship('CuratedPick', back_populates='curated_list', cascade='all, delete-orphan')
+
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+@dataclass
+class CuratedListRequest:
+    """
+    A dataclass that represents a response for a CuratedList object.
+    """
+    name: str
+    description: str
+    id: str | None = None
+
+    def to_dict(self) -> dict:
+        """
+        Converts the dataclass instance into a dictionary.
+
+        :return: A dictionary with field names as keys and their corresponding field values.
+        """
+        return {
+            "name": self.name,
+            "description": self.description,
+            "id": self.id,
+        }
+
+    @classmethod
+    def from_json(cls, d: dict[str, str]) -> 'CuratedListRequest':
+        """
+        :param d: CuratedList JSON dictionary
+        :return: CuratedList object
+        """
+        return cls(
+            name=_get_from_key_or_raise(key='name', d=d),
+            description=d.get("description", "").strip(),
+            id=d.get("id", None),
+        )
