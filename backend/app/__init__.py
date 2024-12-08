@@ -3,10 +3,15 @@ from flask import (
     jsonify,
 )
 
+from app.di.di_config import initialize_di
+
+initialize_di()
+
 from flask_cors import CORS
 
 from .auth.auth import requires_auth
 from .booklist import booklist_bp
+from .di import di_config
 from .exceptions.invalid_request_error import InvalidRequestError
 from .exceptions.json_error import json_error
 from .models.book import Book

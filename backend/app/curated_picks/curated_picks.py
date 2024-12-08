@@ -28,8 +28,8 @@ def store_curated_list(request: Request):
 
                 return jsonify({
                     "success": True,
-                    "book": curated_list_request.to_dict(),
-                })
+                    "list": curated_list_request.to_dict(),
+                }), 201
 
             else:
                 message = f'Curated list \'{curated_list.name}\' already exists, Try PUT to update.'

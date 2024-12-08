@@ -9,3 +9,4 @@ requests==2.32.3
 redis==5.0.8
 PyJWT==2.10.0
 alembic==1.14.0
+inject==5.2.1
