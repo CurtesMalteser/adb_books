@@ -130,3 +130,37 @@ def store_curated_pick(request: Request):
 
     finally:
         db.session.close()
+
+
+def get_curated_picks(list_id_func: callable):
+    """
+    Fetches curated picks.
+    :return: JSON array of curated lists if the request is successful, or aborts with an error response.
+    :rtype: lists or flask.Response
+    """
+    try:
+        if list_id := list_id_func():
+            _validate_list_exist_or_404(list_id)
+
+            curated_picks = CuratedPick.query.filter_by(list_id=list_id).all()
+            curated_picks = [CuratedPickRequest.from_model(cp).to_dict() for cp in curated_picks]
+        else:
+            raise InvalidRequestError(code=404, message='List ID is required.')
+
+        return jsonify({
+            "success": True,
+            "picks": curated_picks,
+        })
+
+    except InvalidRequestError as e:
+        raise e
+
+    except Exception as e:
+        print(f'🧨 {e}')
+        abort(500)
+
+
+def _validate_list_exist_or_404(list_id):
+    curated_list = CuratedList.query.get(list_id)
+    if not curated_list:
+        raise InvalidRequestError(code=404, message="The specified list does not exist.")

@@ -79,12 +79,11 @@ class CuratedPicksTestCase(BaseTestCase):
             CuratedList(name='Test List 2', description='Test Description 2').insert()
             db.session.close()
 
-        self.with_context(add_picked_lists)
-
         headers = {
             "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
         }
 
+        self.with_context(add_picked_lists)
         res = self.client.get('/curated-lists', headers=headers)
         self.assertEqual(200, res.status_code)
         list_data = res.get_json().get('lists')
@@ -109,8 +108,6 @@ class CuratedPicksTestCase(BaseTestCase):
             CuratedList(name='Test List 2', description='Test Description 2').insert()
             db.session.close()
 
-        self.with_context(add_picked_lists)
-
         payload = {
             "list_id": "1",
             "position": "3",
@@ -120,6 +117,8 @@ class CuratedPicksTestCase(BaseTestCase):
         headers = {
             "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:curator"]}'
         }
+
+        self.with_context(add_picked_lists)
 
         res = self.client.post(
             '/curated-pick',
@@ -146,8 +145,6 @@ class CuratedPicksTestCase(BaseTestCase):
             CuratedList(name='Test List 2', description='Test Description 2').insert()
             db.session.close()
 
-        self.with_context(add_picked_lists)
-
         payload = {
             "list_id": "1",
             "position": "2",
@@ -157,6 +154,8 @@ class CuratedPicksTestCase(BaseTestCase):
         headers = {
             "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:curator"]}'
         }
+
+        self.with_context(add_picked_lists)
 
         res = self.client.post(
             '/curated-pick',
@@ -182,8 +181,6 @@ class CuratedPicksTestCase(BaseTestCase):
             CuratedList(name='Test List', description='Test Description').insert()
             db.session.close()
 
-        self.with_context(add_picked_lists)
-
         payload = {
             "list_id": "1",
             "position": "3",
@@ -192,6 +189,8 @@ class CuratedPicksTestCase(BaseTestCase):
         headers = {
             "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:curator"]}'
         }
+
+        self.with_context(add_picked_lists)
 
         res = self.client.post(
             '/curated-pick',
@@ -212,8 +211,6 @@ class CuratedPicksTestCase(BaseTestCase):
             CuratedList(name='Test List', description='Test Description').insert()
             db.session.close()
 
-        self.with_context(add_picked_lists)
-
         payload = {
             "list_id": "1",
             "position": "3",
@@ -223,6 +220,8 @@ class CuratedPicksTestCase(BaseTestCase):
         headers = {
             "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
         }
+
+        self.with_context(add_picked_lists)
 
         res = self.client.post(
             '/curated-pick',
@@ -244,8 +243,6 @@ class CuratedPicksTestCase(BaseTestCase):
             CuratedPick(list_id=1, isbn_13="9780061120084", position=3, isbn_10=None).insert()
             db.session.close()
 
-        self.with_context(add_picked_entries)
-
         payload = {
             "list_id": "1",
             "position": "3",
@@ -255,6 +252,8 @@ class CuratedPicksTestCase(BaseTestCase):
         headers = {
             "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:curator"]}'
         }
+
+        self.with_context(add_picked_entries)
 
         res = self.client.post(
             '/curated-pick',
@@ -267,6 +266,73 @@ class CuratedPicksTestCase(BaseTestCase):
         message = res.get_json().get('message')
         expected_message = "Curated pick 'CuratedPick(list_id=1, isbn_13=9780061120084, isbn_10=None, position=3)' already exists, Try PUT to update."
         self.assertEqual(expected_message, message)
+
+    def test_fetch_curated_picks_returns_code_200(self):
+        def add_picked_entries():
+            """
+            Add some CuratedList's to the database.
+            """
+            CuratedList(name='Test List', description='Test Description').insert()
+            CuratedList(name='Test List 2', description='Test Description 2').insert()
+            CuratedPick(list_id=1, isbn_13="9780061120084", position=3, isbn_10=None).insert()
+            CuratedPick(list_id=1, isbn_13="9780061120084", position=1, isbn_10="0471958697").insert()
+            CuratedPick(list_id=2, isbn_13="9780061120085", position=2, isbn_10="1471958697").insert()
+            db.session.close()
+
+        expected_picks = [
+            {'id': None, 'isbn_13': '9780061120084', 'list_id': 1, 'position': 3},
+            {'id': None, 'isbn_10': '0471958697', 'isbn_13': '9780061120084', 'list_id': 1, 'position': 1}
+        ]
+
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
+        }
+
+        self.with_context(add_picked_entries)
+        res = self.client.get('/curated-picks?list_id=1', headers=headers)
+        self.assertEqual(200, res.status_code)
+        picks_data = res.get_json().get('picks')
+
+        self.assertListEqual(expected_picks, picks_data)
+
+    def test_fetch_curated_picks_returns_code_404_list_does_not_exist(self):
+        def add_picked_entries():
+            """
+            Add some CuratedList's to the database.
+            """
+            CuratedList(name='Test List', description='Test Description').insert()
+            CuratedList(name='Test List 2', description='Test Description 2').insert()
+            db.session.close()
+
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
+        }
+
+        self.with_context(add_picked_entries)
+        res = self.client.get('/curated-picks?list_id=3', headers=headers)
+        self.assertEqual(404, res.status_code)
+        message = res.get_json().get('message')
+        self.assertEqual('The specified list does not exist.', message)
+
+    def test_fetch_curated_picks_returns_code_404_list_id_param_not_provided(self):
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
+        }
+
+        res = self.client.get('/curated-picks', headers=headers)
+        self.assertEqual(404, res.status_code)
+        message = res.get_json().get('message')
+        self.assertEqual('List ID is required.', message)
+
+    def test_fetch_curated_picks_returns_403_permission_not_found(self):
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:put"]}'
+        }
+
+        res = self.client.get('/curated-picks?list_id=1', headers=headers)
+        self.assertEqual(403, res.status_code)
+        message = res.get_json().get('message')
+        self.assertEqual('Permission not found.', message)
 
 
 if __name__ == '__main__':

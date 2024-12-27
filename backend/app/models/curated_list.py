@@ -1,7 +1,7 @@
 """
 This module contains the CuratedList model.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 from sqlalchemy import (
     Column,
@@ -54,7 +54,20 @@ class CuratedListRequest:
     """
     name: str
     description: str
-    id: str | None = None
+    id: int | None = None
+
+    @classmethod
+    def from_model(cls, model: CuratedList) -> 'CuratedListRequest':
+        """
+        Converts a CuratedList model instance into a CuratedListRequest dataclass instance.
+        :param model: CuratedList
+        :return: CuratedListRequest instance
+        """
+        return cls(
+            name=model.name,
+            description=model.description,
+            id=model.id if model.id is not None else None,
+        )
 
     def to_dict(self) -> dict:
         """
@@ -62,11 +75,7 @@ class CuratedListRequest:
 
         :return: A dictionary with field names as keys and their corresponding field values.
         """
-        return {
-            "name": self.name,
-            "description": self.description,
-            "id": self.id,
-        }
+        return asdict(self)
 
     @classmethod
     def from_json(cls, d: dict[str, str]) -> 'CuratedListRequest':

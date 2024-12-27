@@ -64,7 +64,7 @@ class Book:
     pages: Optional[int]
     subjects: List[str]
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """
         Converts the dataclass instance into a dictionary.
 

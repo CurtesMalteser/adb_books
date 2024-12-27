@@ -71,6 +71,20 @@ class CuratedPickRequest:
     isbn_13: str | None = None
     isbn_10: str | None = None
 
+    @classmethod
+    def from_model(cls, model: CuratedPick) -> 'CuratedPickRequest':
+        """
+        Converts a CuratedPick model instance into a CuratedPickRequest dataclass instance.
+        :param model: CuratedPick
+        :return: CuratedPickRequest instance
+        """
+        return cls(
+            list_id=model.list_id,
+            isbn_13=model.isbn_13,
+            isbn_10=model.isbn_10,
+            position=model.position,
+        )
+
     def to_dict(self) -> dict:
         """
         Converts the dataclass instance into a dictionary.
