@@ -86,7 +86,7 @@ class Auth(AuthInterface):
 
         if permission not in payload['permissions']:
             raise AuthError({
-                'code': 'unauthorized',
+                'code': 'forbidden',
                 'description': 'Permission not found.'
             }, 403)
 

@@ -9,7 +9,7 @@ initialize_di()
 
 from flask_cors import CORS
 
-from .auth.auth import requires_auth
+from .auth.auth import requires_auth, AuthError
 from .booklist import booklist_bp
 from .di import di_config
 from .exceptions.invalid_request_error import InvalidRequestError
@@ -78,11 +78,15 @@ def create_app(test_config=None):
         )
 
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(_):
         return json_error(message="Internal Server Error", code=500)
 
     @app.errorhandler(InvalidRequestError)
     def invalid_request_error(error):
         return json_error(error.message, error.code)
+
+    @app.errorhandler(AuthError)
+    def auth_error(error):
+        return json_error(error.error['description'],  error.status_code)
 
     return app
