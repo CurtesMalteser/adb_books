@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_cors import cross_origin
 
 from app.auth.auth import requires_auth
-from app.curated_picks.curated_picks import store_curated_list
+from app.curated_picks.curated_picks import store_curated_list, get_curated_lists
 
 curated_picks_bp = Blueprint('curated_picks', __name__)
 
@@ -30,7 +30,7 @@ def fetch_curated_lists(_):
     :return: JSON array of curated picks if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
-    return 'Healthy curated lists'
+    return get_curated_lists()
 
 
 # todo: define route for setting curated pick

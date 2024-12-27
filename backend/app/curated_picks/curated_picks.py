@@ -9,9 +9,8 @@ def store_curated_list(request: Request):
     """
     Adds a curated list.
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
-    :rtype: dict or flask.Response
+    :rtype: list or flask.Response
     """
-
     try:
         if request.is_json:
             curated_list_request = CuratedListRequest.from_json(d=request.get_json())
@@ -48,3 +47,23 @@ def store_curated_list(request: Request):
 
     finally:
         db.session.close()
+
+
+def get_curated_lists():
+    """
+    Fetches curated picks.
+    :return: JSON array of curated lists if the request is successful, or aborts with an error response.
+    :rtype: lists or flask.Response
+    """
+    try:
+        curated_lists = CuratedList.query.all()
+        curated_lists = [CuratedListRequest(cl.id, cl.name, cl.description).to_dict() for cl in curated_lists]
+
+        return jsonify({
+            "success": True,
+            "lists": curated_lists,
+        })
+
+    except Exception as e:
+        print(f'🧨 {e}')
+        abort(500)

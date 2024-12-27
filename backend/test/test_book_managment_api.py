@@ -4,6 +4,7 @@ from app.models.book import Book
 from app.models.book_dto import BookDto, db
 from base_test_case import BaseTestCase
 
+
 def setUpDb():
     books = [
         BookDto(isbn13="1", title="Book 1", authors=["Author 1"], image=None),
@@ -93,7 +94,7 @@ class BookManagementApiTestCase(BaseTestCase):
     def test_update_book_rating_success(self):
         book_id = '1'
         book_rating = 5
-        res = self.client().patch("/book/{}".format(book_id), data='{{"rating": {}}}'.format(book_rating),
+        self.client().patch("/book/{}".format(book_id), data='{{"rating": {}}}'.format(book_rating),
                                   content_type='application/json')
 
         res = self.client().get('/books')

@@ -4,6 +4,8 @@ Module for testing the Curated Picks endpoints.
 import json
 import unittest
 
+from app.models.book_dto import db
+from app.models.curated_list import CuratedList
 from test.base_test_case import BaseTestCase
 
 
@@ -27,6 +29,7 @@ class CuratedPicksTestCase(BaseTestCase):
             headers=headers
         )
 
+        self.assertEqual(201, res.status_code)
         list_data = res.get_json().get('list')
         description = list_data.get('description')
         name = list_data.get('name')
@@ -34,7 +37,6 @@ class CuratedPicksTestCase(BaseTestCase):
         self.assertEqual('Test Description', description)
         self.assertEqual('Test List', name)
         self.assertTrue(list_id)
-        self.assertEqual(201, res.status_code)
 
     def test_post_curated_list_returns_403_permission_not_found(self):
         payload = {
@@ -56,6 +58,47 @@ class CuratedPicksTestCase(BaseTestCase):
         self.assertEqual(403, res.status_code)
         message = res.get_json().get('message')
         self.assertEqual('Permission not found.', message)
+
+    def test_fetch_curated_lists_returns_empty_list_code_200(self):
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
+        }
+
+        res = self.client.get('/curated-lists', headers=headers)
+        self.assertEqual(200, res.status_code)
+        list_data = res.get_json().get('lists')
+        self.assertEqual(len(list_data), 0)
+
+    def test_fetch_curated_lists_returns_code_200(self):
+        def add_picked_lists():
+            """
+            Add some CuratedList's to the database.
+            """
+            CuratedList(name='Test List', description='Test Description').insert()
+            CuratedList(name='Test List 2', description='Test Description 2').insert()
+            db.session.close()
+
+        self.with_context(add_picked_lists)
+
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user", "permissions": ["booklist:get"]}'
+        }
+
+        res = self.client.get('/curated-lists', headers=headers)
+        self.assertEqual(200, res.status_code)
+        list_data = res.get_json().get('lists')
+        self.assertEqual(len(list_data), 2)
+
+    def test_fetch_curated_lists_returns_400_invalid_claims_missing_permissions(self):
+        headers = {
+            "Authorization": 'Bearer {"sub": "auth0|test_user"}'
+        }
+
+        res = self.client.get('/curated-lists', headers=headers)
+        self.assertEqual(400, res.status_code)
+        message = res.get_json().get('message')
+        self.assertEqual('Permissions not included in JWT.', message)
+
 
 if __name__ == '__main__':
     unittest.main()

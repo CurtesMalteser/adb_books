@@ -36,8 +36,7 @@ class BaseTestCase(unittest.TestCase):
 
         self.client = self.app.test_client()
 
-        with self.app.app_context():
-            db.create_all()
+        self.with_context(db.create_all)
 
     def tearDown(self):
         inject.clear()
@@ -47,3 +46,15 @@ class BaseTestCase(unittest.TestCase):
         with self.app.app_context():
             db.drop_all()
             db.session.remove()
+
+    def with_context(self, func):
+        """
+        Runs the given function within the app's context.
+
+        This is useful for running database operations or other app-specific logic
+        in test files that inherit from this class.
+
+        :param func: The function to execute within the app context.
+        """
+        with self.app.app_context():
+            func()
