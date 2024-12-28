@@ -1,34 +1,24 @@
-import os
-from urllib.parse import urljoin
 import json
-import requests
+import os
+
+import inject
 from flask import abort, jsonify, Request
-
-from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME
-from app.exceptions.invalid_request_error import InvalidRequestError
-
-from app.models.book_dto import BookResponse, BookDto, db
-from app.models.book import Book
-
 from requests import (
     JSONDecodeError,
     RequestException,
 )
 
+from app.exceptions.invalid_request_error import InvalidRequestError
+from app.models.book import Book
+from app.models.book_dto import BookResponse, BookDto, db
 from app.models.book_shelf import BookShelf
 from app.models.shelf import ShelfEnum
 from app.models.user import User
 from app.redis_config import redis_client
+from app.services.book_service_base import BookServiceBase
 
 api_key = os.environ.get('ISBNDB_KEY')
 user_agent = os.environ.get('USER_AGENT')
-
-
-def _get_shelf_or_none(book_shelf):
-    if book_shelf is not None:
-        return ShelfEnum.to_str(book_shelf.shelf)
-    else:
-        return None
 
 
 def store_book(payload, request: Request):
@@ -106,7 +96,8 @@ def store_book(payload, request: Request):
         abort(404, "Content type is not supported.")
 
 
-def get_book(user_id: str, book_id: str):
+@inject.params(book_service=BookServiceBase)
+def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
     """
     :param user_id: User ID obtained from the JWT token
     :type user_id: str
@@ -114,39 +105,25 @@ def get_book(user_id: str, book_id: str):
     :param book_id: ISBN13
     :type book_id: str
 
+    :param book_service: BookServiceBase instance provided by the dependency injector
+    :type book_service: BookServiceBase
+
     :return: Book if the request is successful, or aborts with an error response.
     :rtype: flask.Response
     """
-
-    url = urljoin(GET_BOOK_ENDPOINT, book_id)
-
-    headers = {
-        "User-Agent": user_agent,
-        "Authorization": api_key
-    }
-
     try:
         book = redis_client.get(book_id)
 
-        book_shelf = BookShelf.get_or_none(book_id, user_id)
+        book_shelf: BookShelf = BookShelf.get_or_none(book_id, user_id)
 
         if book is None:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            json_response = response.json().get('book')
-
-            book = Book.from_json(d=json_response)
-            book_dict = book.to_dict()
-
-            redis_client.set(book_id, json.dumps(book_dict), ex=REDIS_EXPIRY_TIME)
-
-            book_dict['shelf'] = _get_shelf_or_none(book_shelf)
+            book_dict = book_service.fetch_book(book_shelf, isbn_13=book_id)
 
         else:
             book = json.loads(book)
             book = Book.from_json(d=book)
 
-            book.shelf = _get_shelf_or_none(book_shelf)
+            book.shelf = book_service.get_shelf_or_none(book_shelf)
 
             book_dict = book.to_dict()
 

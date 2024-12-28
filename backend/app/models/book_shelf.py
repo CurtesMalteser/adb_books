@@ -14,8 +14,8 @@ from sqlalchemy import (Column,
                         Integer, event,
                         )
 
-from app.models.shelf import ShelfEnum
 from app.models.book_dto import db, BookDto
+from app.models.shelf import ShelfEnum
 
 
 class BookShelf(db.Model):
@@ -41,7 +41,7 @@ class BookShelf(db.Model):
         self.shelf = shelf
 
     @staticmethod
-    def get_or_none(book_id, user_id):
+    def get_or_none(book_id, user_id) -> 'BookShelf':
         return BookShelf.query.filter_by(
             isbn13=book_id,
             userID=user_id

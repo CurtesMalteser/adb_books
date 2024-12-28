@@ -21,10 +21,11 @@ from .search import search_bp
 from .curated_picks import curated_picks_bp
 
 from .models.curated_list import CuratedList
-from .models.curated_pick import  CuratedPick
+from .models.curated_pick import CuratedPick
 from .models.user import User
 from .models.book_shelf import BookShelf
 from .shelf import shelf_bp
+
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -87,6 +88,6 @@ def create_app(test_config=None):
 
     @app.errorhandler(AuthError)
     def auth_error(error):
-        return json_error(error.error['description'],  error.status_code)
+        return json_error(error.error['description'], error.status_code)
 
     return app
