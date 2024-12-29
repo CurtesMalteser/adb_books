@@ -4,7 +4,7 @@ Module for testing the Curated Picks endpoints.
 import json
 import unittest
 
-from app.models.book_dto import db
+from app.models.book_dto import db, BookResponse
 from app.models.curated_list import CuratedList
 from app.models.curated_pick import CuratedPick
 from test.base_test_case import BaseTestCase
@@ -22,9 +22,30 @@ class CuratedPicksTestCase(BaseTestCase):
     @staticmethod
     def _setup_curated_picks():
         CuratedPick(list_id=1, isbn_13="9780061120084", position=3, isbn_10=None).insert()
-        CuratedPick(list_id=1, isbn_13="9780061120084", position=1, isbn_10="0471958697").insert()
-        CuratedPick(list_id=2, isbn_13="9780061120085", position=2, isbn_10="1471958697").insert()
+        CuratedPick(list_id=1, isbn_13=None, position=1, isbn_10="0471958697").insert()
+        CuratedPick(list_id=2, isbn_13="9780061120086", position=2, isbn_10="1471958697").insert()
         db.session.close()
+
+    @staticmethod
+    def _mock_books():
+        return [
+            BookResponse(
+                isbn13='9780061120084',
+                isbn10=None,
+                title='Test Title',
+                authors=['Test Author'],
+                image='Test Image',
+                shelf='Test Shelf',
+            ),
+            BookResponse(
+                isbn13=None,
+                isbn10='0471958697',
+                title='Test Title 2',
+                authors=['Test Author 2'],
+                image='Test Image 2',
+                shelf='Test Shelf 2',
+            ),
+        ]
 
     @staticmethod
     def _get_headers(permissions):
@@ -225,17 +246,14 @@ class CuratedPicksTestCase(BaseTestCase):
             self._setup_curated_lists()
             self._setup_curated_picks()
 
-        expected_picks = [
-            {'id': None, 'isbn_13': '9780061120084', 'list_id': 1, 'position': 3},
-            {'id': None, 'isbn_10': '0471958697', 'isbn_13': '9780061120084', 'list_id': 1, 'position': 1}
-        ]
+        self.mock_book_service.mock_books(self._mock_books())
 
         self.with_context(add_picked_entries)
         res = self.client.get('/curated-picks?list_id=1', headers=self._get_headers(["booklist:get"]))
         self.assertEqual(200, res.status_code)
-        picks_data = res.get_json().get('picks')
-
-        self.assertListEqual(expected_picks, picks_data)
+        picks_data = res.get_json().get('books')
+        books = [BookResponse.from_json(d=book) for book in picks_data]
+        self.assertListEqual(self._mock_books(), books)
 
     def test_fetch_curated_picks_returns_code_404_list_does_not_exist(self):
         self.with_context(self._setup_curated_lists)

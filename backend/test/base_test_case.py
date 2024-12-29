@@ -9,7 +9,9 @@ import inject
 from app import create_app
 from app.auth.auth_interface import AuthInterface
 from app.models.book_dto import db
+from app.services.book_service_base import BookServiceBase
 from test.auth.mock_auth import MockAuth
+from test.services.mock_book_service import MockBookService
 
 script_path = "../"
 sys.path.append(script_path)
@@ -22,9 +24,12 @@ database_path = "postgresql://{}:{}@{}/{}".format(username, username, 'localhost
 class BaseTestCase(unittest.TestCase):
     """Base class for all test cases."""
 
+    mock_book_service = MockBookService()
+
     def setUp(self):
         inject.configure(lambda binder: binder
-                         .bind(AuthInterface, MockAuth()),
+                         .bind(AuthInterface, MockAuth())
+                         .bind_to_provider(BookServiceBase, lambda: self.mock_book_service),
                          allow_override=True,
                          clear=True)
 

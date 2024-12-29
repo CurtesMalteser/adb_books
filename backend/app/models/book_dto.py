@@ -3,12 +3,12 @@ from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (Column,
                         String,
                         Integer,
                         ARRAY,
                         )
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import mapped_column
 
 from app.models.book import _get_from_key_or_raise
@@ -68,7 +68,8 @@ class BookResponse:
     """
     A class to represent a book with serialization to/from JSON and DTO.
     """
-    isbn13: str
+    isbn13: Optional[str]
+    isbn10: Optional[str]
     title: str
     authors: List[str]
     image: str
@@ -89,7 +90,8 @@ class BookResponse:
         :return: Book object
         """
         return cls(
-            isbn13=_get_from_key_or_raise(key='isbn13', d=d),
+            isbn13=d.get('isbn13'),
+            isbn10=d.get('isbn10'),
             title=_get_from_key_or_raise(key='title', d=d),
             authors=d.get('authors', []) if d.get('authors') else None,
             image=_get_from_key_or_raise(key='image', d=d),
@@ -103,7 +105,8 @@ class BookResponse:
         :return: Book object
         """
         return cls(
-            isbn13=_get_from_key_or_raise(key='primary_isbn13', d=d),
+            isbn13=d.get('isbn13'),
+            isbn10=d.get('isbn10'),
             title=_get_from_key_or_raise(key='title', d=d),
             authors=[d.get('author')],
             image=_get_from_key_or_raise(key='book_image', d=d),

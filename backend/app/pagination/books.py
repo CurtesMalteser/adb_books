@@ -40,6 +40,7 @@ def paginate(request, query):
         authors=book.authors,
         image=book.image,
         shelf=None,
+        isbn10=None,
     ), data_books)
 
     data_books = list(data_books)[start:end]

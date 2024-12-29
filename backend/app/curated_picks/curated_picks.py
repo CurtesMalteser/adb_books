@@ -1,3 +1,4 @@
+import inject
 from flask import abort, jsonify, Request
 from sqlalchemy import or_
 
@@ -5,6 +6,7 @@ from app.exceptions.invalid_request_error import InvalidRequestError
 from app.models.book_dto import db
 from app.models.curated_list import CuratedList, CuratedListRequest
 from app.models.curated_pick import CuratedPickRequest, CuratedPick
+from app.services.book_service_base import BookServiceBase
 
 
 def store_curated_list(request: Request):
@@ -111,7 +113,6 @@ def store_curated_pick(request: Request):
                 }), 201
 
             else:
-                print(f'❌ {curated_pick}')
                 message = f'Curated pick \'{curated_pick}\' already exists, Try PUT to update.'
                 raise InvalidRequestError(code=409, message=message)
 
@@ -132,7 +133,8 @@ def store_curated_pick(request: Request):
         db.session.close()
 
 
-def get_curated_picks(list_id_func: callable):
+@inject.params(book_service=BookServiceBase)
+def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
     """
     Fetches curated picks.
     :return: JSON array of curated lists if the request is successful, or aborts with an error response.
@@ -143,14 +145,25 @@ def get_curated_picks(list_id_func: callable):
             _validate_list_exist_or_404(list_id)
 
             curated_picks = CuratedPick.query.filter_by(list_id=list_id).all()
-            curated_picks = [CuratedPickRequest.from_model(cp).to_dict() for cp in curated_picks]
+
+            json_books = []
+            for cp in curated_picks:
+                book = book_service.fetch_book(None, isbn_10=cp.isbn_10, isbn_13=cp.isbn_13)
+                if book:  # Ensure book data is valid
+                    json_books.append(book)
+
         else:
             raise InvalidRequestError(code=404, message='List ID is required.')
 
-        return jsonify({
-            "success": True,
-            "picks": curated_picks,
-        })
+        return jsonify(
+            {
+                'success': True,
+                'books': list(json_books),
+                'page': 1,
+                'limit': len(json_books),
+                'total_results': len(json_books)
+            }
+        )
 
     except InvalidRequestError as e:
         raise e
