@@ -21,9 +21,9 @@ class CuratedPicksTestCase(BaseTestCase):
 
     @staticmethod
     def _setup_curated_picks():
-        CuratedPick(list_id=1, isbn_13="9780061120084", position=3, isbn_10=None).insert()
-        CuratedPick(list_id=1, isbn_13=None, position=1, isbn_10="0471958697").insert()
-        CuratedPick(list_id=2, isbn_13="9780061120086", position=2, isbn_10="1471958697").insert()
+        CuratedPick(list_id=1, isbn13="9780061120084", position=3, isbn10=None).insert()
+        CuratedPick(list_id=1, isbn13=None, position=1, isbn10="0471958697").insert()
+        CuratedPick(list_id=2, isbn13="9780061120086", position=2, isbn10="1471958697").insert()
         db.session.close()
 
     @staticmethod
@@ -119,11 +119,11 @@ class CuratedPicksTestCase(BaseTestCase):
         res = self.client.get('/curated-lists', headers=headers)
         self.assert_error(res, expect_status_code=400, expect_message='Permissions not included in JWT.')
 
-    def test_post_curated_pick_returns_201_isbn_13(self):
+    def test_post_curated_pick_returns_201_isbn13(self):
         payload = {
             "list_id": "1",
             "position": "3",
-            "isbn_13": "9780061120084",
+            "isbn13": "9780061120084",
         }
 
         self.with_context(self._setup_curated_lists)
@@ -139,16 +139,16 @@ class CuratedPicksTestCase(BaseTestCase):
         curated_pick_data = res.get_json().get('pick')
         list_id = curated_pick_data.get('list_id')
         position = curated_pick_data.get('position')
-        isbn_13 = curated_pick_data.get('isbn_13')
+        isbn13 = curated_pick_data.get('isbn13')
         self.assertEqual(1, list_id)
         self.assertEqual(3, position)
-        self.assertEqual("9780061120084", isbn_13)
+        self.assertEqual("9780061120084", isbn13)
 
-    def test_post_curated_pick_returns_201_isbn_10(self):
+    def test_post_curated_pick_returns_201_isbn10(self):
         payload = {
             "list_id": "1",
             "position": "2",
-            "isbn_10": "123456789X",
+            "isbn10": "123456789X",
         }
 
         self.with_context(self._setup_curated_lists)
@@ -164,10 +164,10 @@ class CuratedPicksTestCase(BaseTestCase):
         curated_pick_data = res.get_json().get('pick')
         list_id = curated_pick_data.get('list_id')
         position = curated_pick_data.get('position')
-        isbn_10 = curated_pick_data.get('isbn_10')
+        isbn10 = curated_pick_data.get('isbn10')
         self.assertEqual(1, list_id)
         self.assertEqual(2, position)
-        self.assertEqual("123456789X", isbn_10)
+        self.assertEqual("123456789X", isbn10)
 
     def test_post_curated_pick_returns_422_bad_request_missing_isbn(self):
         def add_picked_lists():
@@ -191,14 +191,14 @@ class CuratedPicksTestCase(BaseTestCase):
             headers=self._get_headers(["booklist:curator"])
         )
 
-        expected_message = "At least one of 'isbn_10' or 'isbn_13' must be provided."
+        expected_message = "At least one of 'isbn10' or 'isbn13' must be provided."
         self.assert_error(res, expect_status_code=422, expect_message=expected_message)
 
     def test_post_curated_pick_returns_403_permission_not_found(self):
         payload = {
             "list_id": "1",
             "position": "3",
-            "isbn_10": "0471958697",
+            "isbn10": "0471958697",
         }
 
         self.with_context(self._setup_curated_lists)
@@ -223,7 +223,7 @@ class CuratedPicksTestCase(BaseTestCase):
         payload = {
             "list_id": "1",
             "position": "3",
-            "isbn_13": "9780061120084",
+            "isbn13": "9780061120084",
         }
 
         self.with_context(add_picked_entries)
@@ -235,7 +235,7 @@ class CuratedPicksTestCase(BaseTestCase):
             headers=self._get_headers(["booklist:curator"])
         )
 
-        expected_message = "Curated pick 'CuratedPick(list_id=1, isbn_13=9780061120084, isbn_10=None, position=3)' already exists, Try PUT to update."
+        expected_message = "Curated pick 'CuratedPick(list_id=1, isbn13=9780061120084, isbn10=None, position=3)' already exists, Try PUT to update."
         self.assert_error(res, expect_status_code=409, expect_message=expected_message)
 
     def test_fetch_curated_picks_returns_code_200(self):

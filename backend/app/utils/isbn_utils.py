@@ -4,7 +4,7 @@ ISBN-10 and ISBN-13 validation utilities.
 import re
 
 
-def is_valid_isbn_10(isbn: str) -> bool:
+def is_valid_isbn10(isbn: str) -> bool:
     """
     Validate ISBN-10.
     :param isbn: ISBN-10 string
@@ -20,7 +20,7 @@ def is_valid_isbn_10(isbn: str) -> bool:
     return total % 11 == 0
 
 
-def is_valid_isbn_13(isbn: str) -> bool:
+def is_valid_isbn13(isbn: str) -> bool:
     """
     Validate ISBN-13.
     :param isbn: ISBN-13 string

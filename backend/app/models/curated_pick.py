@@ -14,7 +14,7 @@ from sqlalchemy.orm import relationship
 
 from app.models.book import _get_from_key_or_raise
 from app.models.book_dto import db
-from app.utils.isbn_utils import is_valid_isbn_10, is_valid_isbn_13
+from app.utils.isbn_utils import is_valid_isbn10, is_valid_isbn13
 
 target_metadata = db.metadata
 
@@ -28,8 +28,8 @@ class CuratedPick(db.Model):
 
     id = Column(Integer, primary_key=True)
     list_id = Column(Integer, ForeignKey('curated_lists.id', ondelete='CASCADE'), nullable=False)
-    isbn_13 = Column(String(13), nullable=True)
-    isbn_10 = Column(String(10), nullable=True)
+    isbn13 = Column(String(13), nullable=True)
+    isbn10 = Column(String(10), nullable=True)
     position = Column(Integer, nullable=False)
 
     # Relationship back to CuratedList
@@ -39,14 +39,14 @@ class CuratedPick(db.Model):
         UniqueConstraint('list_id', 'position', name='uq_curated_list_position'),
     )
 
-    def __init__(self, list_id, isbn_13, isbn_10, position):
+    def __init__(self, list_id, isbn13, isbn10, position):
         self.list_id = list_id
-        self.isbn_13 = isbn_13
-        self.isbn_10 = isbn_10
+        self.isbn13 = isbn13
+        self.isbn10 = isbn10
         self.position = position
 
     def __str__(self):
-        return f'CuratedPick(list_id={self.list_id}, isbn_13={self.isbn_13}, isbn_10={self.isbn_10}, position={self.position})'
+        return f'CuratedPick(list_id={self.list_id}, isbn13={self.isbn13}, isbn10={self.isbn10}, position={self.position})'
 
     def insert(self):
         db.session.add(self)
@@ -68,8 +68,8 @@ class CuratedPickRequest:
     list_id: int
     position: int
     id: int | None = None
-    isbn_13: str | None = None
-    isbn_10: str | None = None
+    isbn13: str | None = None
+    isbn10: str | None = None
 
     @classmethod
     def from_model(cls, model: CuratedPick) -> 'CuratedPickRequest':
@@ -80,8 +80,8 @@ class CuratedPickRequest:
         """
         return cls(
             list_id=model.list_id,
-            isbn_13=model.isbn_13,
-            isbn_10=model.isbn_10,
+            isbn13=model.isbn13,
+            isbn10=model.isbn10,
             position=model.position,
         )
 
@@ -99,10 +99,10 @@ class CuratedPickRequest:
             'position': self.position,
         }
 
-        if self.isbn_13:
-            result['isbn_13'] = self.isbn_13
-        if self.isbn_10:
-            result['isbn_10'] = self.isbn_10
+        if self.isbn13:
+            result['isbn13'] = self.isbn13
+        if self.isbn10:
+            result['isbn10'] = self.isbn10
 
         return result
 
@@ -114,17 +114,17 @@ class CuratedPickRequest:
         """
         return cls(
             list_id=int(_get_from_key_or_raise(key='list_id', d=d)),
-            isbn_13=d.get('isbn_13', None),
-            isbn_10=d.get('isbn_10', None),
+            isbn13=d.get('isbn13', None),
+            isbn10=d.get('isbn10', None),
             position=int(_get_from_key_or_raise(key='position', d=d)),
         )
 
     def __post_init__(self):
-        if not self.isbn_10 and not self.isbn_13:
-            raise ValueError("At least one of 'isbn_10' or 'isbn_13' must be provided.")
+        if not self.isbn10 and not self.isbn13:
+            raise ValueError("At least one of 'isbn10' or 'isbn13' must be provided.")
 
-        if self.isbn_10 and not is_valid_isbn_10(self.isbn_10):
+        if self.isbn10 and not is_valid_isbn10(self.isbn10):
             raise ValueError("Invalid ISBN-10 format.")
 
-        if self.isbn_13 and not is_valid_isbn_13(self.isbn_13):
+        if self.isbn13 and not is_valid_isbn13(self.isbn13):
             raise ValueError("Invalid ISBN-13 format.")

@@ -117,7 +117,7 @@ def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
         book_shelf: BookShelf = BookShelf.get_or_none(book_id, user_id)
 
         if book is None:
-            book_dict = book_service.fetch_book(book_shelf, isbn_13=book_id)
+            book_dict = book_service.fetch_book(book_shelf, isbn13=book_id)
 
         else:
             book = json.loads(book)

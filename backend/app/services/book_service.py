@@ -13,7 +13,7 @@ from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME
 from app.models.book import Book
 from app.models.book_shelf import BookShelf
 from app.services.book_service_base import BookServiceBase
-from app.utils.isbn_utils import is_valid_isbn_10, is_valid_isbn_13
+from app.utils.isbn_utils import is_valid_isbn10, is_valid_isbn13
 
 
 class BookService(BookServiceBase):
@@ -31,12 +31,12 @@ class BookService(BookServiceBase):
     def __init__(self, redis_client: redis.Redis):
         self.redis_client = redis_client
 
-    def fetch_book(self, book_shelf: 'BookShelf', isbn_10: str = None, isbn_13: str = None) -> dict:
+    def fetch_book(self, book_shelf: 'BookShelf', isbn10: str = None, isbn13: str = None) -> dict:
         """
         Fetches book details from the book service.
         """
 
-        book_id = self._get_book_id(isbn_10, isbn_13)
+        book_id = self._get_book_id(isbn10, isbn13)
 
         url = urljoin(GET_BOOK_ENDPOINT, book_id)
 
@@ -54,14 +54,14 @@ class BookService(BookServiceBase):
         return book_dict
 
     @staticmethod
-    def _get_book_id(isbn_10: str = None, isbn_13: str = None):
+    def _get_book_id(isbn10: str = None, isbn13: str = None):
         """
         Returns the book ID based on the ISBN provided.
         """
-        if isbn_10 and not is_valid_isbn_10(isbn_10):
+        if isbn10 and not is_valid_isbn10(isbn10):
             raise ValueError("Invalid ISBN-10 format.")
 
-        if isbn_13 and not is_valid_isbn_13(isbn_13):
+        if isbn13 and not is_valid_isbn13(isbn13):
             raise ValueError("Invalid ISBN-13 format.")
 
-        return isbn_13 if isbn_13 else isbn_10
+        return isbn13 if isbn13 else isbn10

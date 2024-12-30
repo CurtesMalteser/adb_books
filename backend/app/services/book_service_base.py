@@ -14,8 +14,8 @@ class BookServiceBase(ABC):
     """
 
     @abstractmethod
-    def fetch_book(self, book_shelf: Optional['BookShelf'], isbn_10: str | None = None,
-                   isbn_13: str | None = None) -> dict:
+    def fetch_book(self, book_shelf: Optional['BookShelf'], isbn10: str | None = None,
+                   isbn13: str | None = None) -> dict:
         pass
 
     @staticmethod

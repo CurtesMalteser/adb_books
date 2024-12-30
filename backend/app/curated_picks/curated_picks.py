@@ -92,16 +92,16 @@ def store_curated_pick(request: Request):
             curated_pick_request = _get_curated_pick_request_or_throw(request.get_json())
             curated_pick = CuratedPick.query.filter(
                 or_(
-                    CuratedPick.isbn_13 == curated_pick_request.isbn_13,
-                    CuratedPick.isbn_10 == curated_pick_request.isbn_10,
+                    CuratedPick.isbn13 == curated_pick_request.isbn13,
+                    CuratedPick.isbn10 == curated_pick_request.isbn10,
                 )
             ).first()
 
             if curated_pick is None:
                 curated_pick = CuratedPick(
                     list_id=curated_pick_request.list_id,
-                    isbn_13=curated_pick_request.isbn_13,
-                    isbn_10=curated_pick_request.isbn_10,
+                    isbn13=curated_pick_request.isbn13,
+                    isbn10=curated_pick_request.isbn10,
                     position=curated_pick_request.position,
                 )
 
@@ -149,7 +149,7 @@ def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
 
             json_books = []
             for cp in curated_picks:
-                book = book_service.fetch_book(None, isbn_10=cp.isbn_10, isbn_13=cp.isbn_13)
+                book = book_service.fetch_book(None, isbn10=cp.isbn10, isbn13=cp.isbn13)
                 if book:  # Ensure book data is valid
                     json_books.append(book)
 
