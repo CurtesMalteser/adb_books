@@ -61,7 +61,8 @@ def get_curated_lists():
     """
     try:
         curated_lists = CuratedList.query.all()
-        curated_lists = [CuratedListRequest(cl.id, cl.name, cl.description).to_dict() for cl in curated_lists]
+        curated_lists = [CuratedListRequest(id=cl.id, name=cl.name, description=cl.description).to_dict() for cl in
+                         curated_lists]
 
         return jsonify({
             "success": True,
