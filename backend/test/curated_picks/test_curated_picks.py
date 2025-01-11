@@ -309,7 +309,7 @@ class CuratedPicksTestCase(BaseTestCase):
         self.assertTrue(list_id)
 
     def test_put_curated_list_returns_404_no_such_pick_list(self):
-        list_id = 1000000
+        list_id = 1_000_000
         payload = {
             "id": str(list_id),
             "name": "Favorite curator books",
@@ -328,9 +328,21 @@ class CuratedPicksTestCase(BaseTestCase):
         expect_message = f"Curated list with ID '{list_id}' does not exist."
         self.assert_error(res, expect_status_code=404, expect_message=expect_message)
 
-    # TODO: Add test for DELETE missing role
-    # TODO: Add test for DELETE removes list
-    # TODO: Add test no such list id
+    def test_delete_curated_list_returns_403_permission_not_found(self):
+        self.with_context(self._setup_curated_lists)
+
+        res = self.client.delete('/curated-list/1', headers=self._get_headers(["booklist:get"]))
+        self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
+
+    def test_delete_curated_list_returns_204(self):
+        self.with_context(self._setup_curated_lists)
+        res = self.client.delete('/curated-list/1', headers=self._get_headers(["booklist:curator"]))
+        self.assertEqual(204, res.status_code)
+
+    def test_delete_curated_list_returns_404(self):
+        self.with_context(self._setup_curated_lists)
+        res = self.client.delete('/curated-list/1000000', headers=self._get_headers(["booklist:curator"]))
+        self.assert_error(res, expect_status_code=404, expect_message='The specified list does not exist.')
 
     # TODO: Add test for PUT missing role
     # TODO: Add test for PUT updates pick position and relevant picks are updated accordingly

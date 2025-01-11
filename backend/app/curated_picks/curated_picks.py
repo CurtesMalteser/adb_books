@@ -57,6 +57,7 @@ def store_curated_list_update(request: Request):
     """
     Updates a curated list.
     :param request:
+    :type request: Request
     :return: updated curated list JSON object if the request is successful, or aborts with an error response.
     """
     try:
@@ -83,6 +84,37 @@ def store_curated_list_update(request: Request):
             raise InvalidRequestError(code=404, message='Content type is not supported.')
     except InvalidRequestError as e:
         raise e
+
+
+def delete_curated_list_by_id(list_id: int):
+    """
+    Deletes a curated list by ID.
+    :param list_id: ID of the curated list to delete.
+    :type list_id: int
+    :return: 204 status code if the request is successful, or aborts with an error response.
+    :rtype: dict or flask.Response
+    """
+    try:
+        curated_list = CuratedList.query.get(list_id)
+
+        if curated_list:
+            curated_list.delete()
+            return "", 204  # RESTful standard for successful DELETE
+
+        else:
+            raise InvalidRequestError(code=404, message='The specified list does not exist.')
+
+    except InvalidRequestError as e:
+        raise e
+
+    except Exception as e:
+        print(f'🧨 {e}')
+        db.session.rollback()
+        abort(500)
+
+    finally:
+        db.session.close()
+
 
 def get_curated_lists():
     """

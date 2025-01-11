@@ -7,6 +7,7 @@ from app.curated_picks.curated_picks import (store_curated_list,
                                              store_curated_pick,
                                              get_curated_picks,
                                              store_curated_list_update,
+                                             delete_curated_list_by_id,
                                              )
 
 curated_picks_bp = Blueprint('curated_picks', __name__)
@@ -36,16 +37,16 @@ def update_curated_list(_):
     return store_curated_list_update(request=request)
 
 
-@curated_picks_bp.route('/curated-list', methods=['DELETE'])
+@curated_picks_bp.route('/curated-list/<int:list_id>', methods=['DELETE'])
 @cross_origin()
 @requires_auth('booklist:curator')
-def delete_curated_list(_):
+def delete_curated_list(_, list_id: int):
     """
     Adds a curated list.
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
-    abort(501)
+    return delete_curated_list_by_id(list_id)
 
 
 @curated_picks_bp.route('/curated-lists')

@@ -27,6 +27,7 @@ from .models.book_shelf import BookShelf
 from .shelf import shelf_bp
 
 
+# TODO: Handle DELETE requests with 204 status code if successful
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
