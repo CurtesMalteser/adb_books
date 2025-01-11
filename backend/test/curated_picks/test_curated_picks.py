@@ -268,6 +268,79 @@ class CuratedPicksTestCase(BaseTestCase):
         res = self.client.get('/curated-picks?list_id=1', headers=self._get_headers(["booklist:put"]))
         self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
 
+    def test_put_curated_list_returns_403_permission_not_found(self):
+        payload = {
+            "name": "Test List",
+            "description": "Test Description"
+        }
+
+        res = self.client.put(
+            '/curated-list',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:get"])
+        )
+
+        self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
+
+    def test_put_curated_list_returns_200(self):
+        payload = {
+            "id": "1",
+            "name": "Favorite curator books",
+            "description": "The books that I most enjoyed reading"
+        }
+
+        self.with_context(self._setup_curated_lists)
+
+        res = self.client.put(
+            '/curated-list',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:curator"])
+        )
+
+        self.assertEqual(200, res.status_code)
+        list_data = res.get_json().get('list')
+        description = list_data.get('description')
+        name = list_data.get('name')
+        list_id = list_data.get('id')
+        self.assertEqual('The books that I most enjoyed reading', description)
+        self.assertEqual('Favorite curator books', name)
+        self.assertTrue(list_id)
+
+    def test_put_curated_list_returns_404_no_such_pick_list(self):
+        list_id = 1000000
+        payload = {
+            "id": str(list_id),
+            "name": "Favorite curator books",
+            "description": "The books that I most enjoyed reading"
+        }
+
+        self.with_context(self._setup_curated_lists)
+
+        res = self.client.put(
+            '/curated-list',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:curator"])
+        )
+
+        expect_message = f"Curated list with ID '{list_id}' does not exist."
+        self.assert_error(res, expect_status_code=404, expect_message=expect_message)
+
+    # TODO: Add test for DELETE missing role
+    # TODO: Add test for DELETE removes list
+    # TODO: Add test no such list id
+
+    # TODO: Add test for PUT missing role
+    # TODO: Add test for PUT updates pick position and relevant picks are updated accordingly
+    # e.g: position 4 id 4 goes into position 2, position 2 id 2 goes into position 3 and position 3 id 3 goes into position 4, so forth and so on.
+    # TODO: Add test no such pick id
+
+    # TODO: Add test for DELETE missing role
+    # TODO: Add test for DELETE removes pick
+    # TODO: Add test no such pick id
+
 
 if __name__ == '__main__':
     unittest.main()

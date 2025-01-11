@@ -53,6 +53,37 @@ def store_curated_list(request: Request):
         db.session.close()
 
 
+def store_curated_list_update(request: Request):
+    """
+    Updates a curated list.
+    :param request:
+    :return: updated curated list JSON object if the request is successful, or aborts with an error response.
+    """
+    try:
+        if request.is_json:
+            curated_list_request = CuratedListRequest.from_json(d=request.get_json())
+            curated_list = CuratedList.query.filter_by(id=curated_list_request.id).first()
+
+            if curated_list is not None:
+                curated_list.name = curated_list_request.name
+                curated_list.description = curated_list_request.description
+
+                curated_list.update()
+
+                return jsonify({
+                    "success": True,
+                    "list": curated_list_request.to_dict(),
+                }), 200
+
+            else:
+                message = f'Curated list with ID \'{curated_list_request.id}\' does not exist.'
+                raise InvalidRequestError(code=404, message=message)
+
+        else:
+            raise InvalidRequestError(code=404, message='Content type is not supported.')
+    except InvalidRequestError as e:
+        raise e
+
 def get_curated_lists():
     """
     Fetches curated picks.
@@ -72,13 +103,6 @@ def get_curated_lists():
     except Exception as e:
         print(f'🧨 {e}')
         abort(500)
-
-
-def _get_curated_pick_request_or_throw(json: dict) -> CuratedPickRequest:
-    try:
-        return CuratedPickRequest.from_json(d=json)
-    except Exception as e:
-        raise InvalidRequestError(code=422, message=f'{e}')
 
 
 def store_curated_pick(request: Request):
@@ -172,6 +196,13 @@ def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
     except Exception as e:
         print(f'🧨 {e}')
         abort(500)
+
+
+def _get_curated_pick_request_or_throw(json: dict) -> CuratedPickRequest:
+    try:
+        return CuratedPickRequest.from_json(d=json)
+    except Exception as e:
+        raise InvalidRequestError(code=422, message=f'{e}')
 
 
 def _validate_list_exist_or_404(list_id):

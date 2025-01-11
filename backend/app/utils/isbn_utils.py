@@ -10,6 +10,9 @@ def is_valid_isbn10(isbn: str) -> bool:
     :param isbn: ISBN-10 string
     :return: True if valid, False otherwise.
     """
+    if not isbn:
+        return False
+
     if len(isbn) != 10:
         return False
 
@@ -26,6 +29,9 @@ def is_valid_isbn13(isbn: str) -> bool:
     :param isbn: ISBN-13 string
     :return: True if valid, False otherwise.
     """
+    if not isbn:
+        return False
+
     if len(isbn) != 13 or not isbn.isdigit():
         return False
 

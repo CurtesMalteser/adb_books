@@ -92,7 +92,6 @@ class BookResponse:
         """
         isbn10 = d.get('isbn10')
         isbn13 = d.get('isbn13')
-
         is_isbn = is_valid_isbn(isbn10, isbn13)
         if not is_isbn:
             raise ValueError('No ISBN found in JSON.')
