@@ -32,9 +32,11 @@ class MockBookService(BookServiceBase):
         Validate the provided ISBNs to ensure they are in a correct format.
         """
         if isbn10 and not is_valid_isbn10(isbn10):
+            print(f'isbn10: {isbn10}')
             raise ValueError("Invalid ISBN-10 format.")
 
         if isbn13 and not is_valid_isbn13(isbn13):
+            print(f'isbn13: {isbn13}')
             raise ValueError("Invalid ISBN-13 format.")
 
     def mock_books(self, books: list[BookResponse]):

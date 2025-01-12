@@ -344,11 +344,6 @@ class CuratedPicksTestCase(BaseTestCase):
         res = self.client.delete('/curated-list/1000000', headers=self._get_headers(["booklist:curator"]))
         self.assert_error(res, expect_status_code=404, expect_message='The specified list does not exist.')
 
-    # TODO: Add test for PUT missing role
-    # TODO: Add test for PUT updates pick position and relevant picks are updated accordingly
-    # e.g: position 4 id 4 goes into position 2, position 2 id 2 goes into position 3 and position 3 id 3 goes into position 4, so forth and so on.
-    # TODO: Add test no such pick id
-
     def test_delete_curated_pick_returns_403_permission_not_found(self):
         self.with_context(self._setup_curated_lists)
         res = self.client.delete('/curated-pick/1', headers=self._get_headers(["booklist:get"]))
@@ -382,6 +377,165 @@ class CuratedPicksTestCase(BaseTestCase):
         res = self.client.delete(f"/curated-pick/{pick_id}", headers=self._get_headers(["booklist:curator"]))
         expect_message = f"Incorrect pick ID format:'{pick_id}'. ISBN10 or ISBN13 expected."
         self.assert_error(res, expect_status_code=404, expect_message=expect_message)
+
+    def test_put_curated_pick_returns_403_permission_not_found(self):
+        payload = {
+            "position": "3",
+        }
+
+        self.with_context(self._setup_curated_lists)
+
+        res = self.client.patch(
+            '/curated-pick/9780061120084',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:get"])
+        )
+
+        self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
+
+    def test_patch_curated_pick_returns_200_when_moving_book_down_in_ranking(self):
+        def add_picked_entries():
+            """
+            Add some CuratedList's to the database.
+            """
+            mock_books = {
+                i: BookResponse(
+                    isbn13=isbn13,
+                    isbn10=isbn10,
+                    title="Dummy Title",
+                    authors=["John Doe"],
+                    image="",
+                    shelf=None
+                )
+                for i, (isbn13, isbn10) in enumerate([
+                    ("9780061120084", "0061120081"),  # This book will be moved to third position
+                    ("9789231781766", "5476128581"),  # This book will be moved to first position
+                    ("9783648388211", "5551926079"),
+                    ("9789499642106", "1438509057"),
+                    ("9787717178017", "7429530850")
+                ], start=1)
+            }
+
+            self._setup_curated_lists()
+            for book_position, book in mock_books.items():
+                CuratedPick(list_id=2, isbn13=book.isbn13, position=book_position, isbn10=book.isbn10).insert()
+
+            self.mock_book_service.mock_books(list(mock_books.values()))
+
+            db.session.close()
+
+        self.with_context(add_picked_entries)
+
+        payload = {
+            "position": 3,
+        }
+
+        res = self.client.patch(
+            '/curated-pick/9780061120084',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:curator"])
+        )
+
+        self.assertEqual(200, res.status_code)
+        pick_data = res.get_json().get('pick')
+        position = pick_data.get('position')
+        self.assertEqual(3, position)
+        # Confirm book in second position has been moved to first position
+        res = self.client.get('/curated-picks?list_id=2', headers=self._get_headers(["booklist:get"]))
+        self.assertEqual(200, res.status_code)
+        picks_data = res.get_json().get('books')
+        pick_in_first = next((pick for pick in picks_data if pick['isbn13'] == "9789231781766"), None)
+        self.assertEqual(1, pick_in_first.get('position'))
+
+    def test_put_curated_pick_returns_200_when_moving_book_up_in_ranking(self):
+        def add_picked_entries():
+            """
+            Add some CuratedList's to the database.
+            """
+            mock_books = {
+                i: BookResponse(
+                    isbn13=isbn13,
+                    isbn10=isbn10,
+                    title="Dummy Title",
+                    authors=["John Doe"],
+                    image="",
+                    shelf=None
+                )
+                for i, (isbn13, isbn10) in enumerate([
+                    ("9780061120084", "0061120081"),
+                    ("9789231781766", "5476128581"),
+                    ("9783648388211", "5551926079"),
+                    ("9789499642106", "1438509057"),  # This book will be moved to fifth position
+                    ("9787717178017", "7429530850")  # This book will be moved to second position
+                ], start=1)
+            }
+
+            self._setup_curated_lists()
+            for book_position, book in mock_books.items():
+                print(f'position: {book_position}, isbn13: {book.isbn13}, isbn10: {book.isbn10}')
+                CuratedPick(list_id=2, isbn13=book.isbn13, position=book_position, isbn10=book.isbn10).insert()
+
+            self.mock_book_service.mock_books(list(mock_books.values()))
+
+            db.session.close()
+
+        self.with_context(add_picked_entries)
+
+        payload = {
+            "position": 2,
+        }
+
+        res = self.client.patch(
+            '/curated-pick/7429530850',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:curator"])
+        )
+
+        self.assertEqual(200, res.status_code)
+        pick_data = res.get_json().get('pick')
+        position = pick_data.get('position')
+        self.assertEqual(2, position)
+        # Confirm book in fourth position has been moved to fifth position
+        res = self.client.get('/curated-picks?list_id=2', headers=self._get_headers(["booklist:get"]))
+        self.assertEqual(200, res.status_code)
+        picks_data = res.get_json().get('books')
+        pick_in_first = next((pick for pick in picks_data if pick['isbn10'] == "1438509057"), None)
+        self.assertEqual(5, pick_in_first.get('position'))
+
+    def test_patch_curated_pick_returns_404_no_such_pick(self):
+        self.with_context(self._setup_curated_lists)
+        pick_id = 9780061120084
+        payload = {
+            "position": 3,
+        }
+
+        res = self.client.patch(
+            f"/curated-pick/{pick_id}",
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:curator"])
+        )
+
+        expect_message = f"The specified pick ID:'{pick_id}' does not exist."
+        self.assert_error(res, expect_status_code=404, expect_message=expect_message)
+
+    def test_patch_curated_pick_returns_400_invalid_position(self):
+        payload = {
+            "position": 0,
+        }
+
+        res = self.client.patch(
+            '/curated-pick/9780061120084',
+            data=json.dumps(payload),
+            content_type='application/json',
+            headers=self._get_headers(["booklist:curator"])
+        )
+
+        expect_message = "Invalid position value."
+        self.assert_error(res, expect_status_code=400, expect_message=expect_message)
 
 
 if __name__ == '__main__':

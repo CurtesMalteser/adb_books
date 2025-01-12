@@ -147,13 +147,8 @@ def store_curated_pick(request: Request):
     try:
         if request.is_json:
             curated_pick_request = _get_curated_pick_request_or_throw(request.get_json())
-            curated_pick = CuratedPick.query.filter(
-                or_(
-                    CuratedPick.isbn13 == curated_pick_request.isbn13,
-                    CuratedPick.isbn10 == curated_pick_request.isbn10,
-                )
-            ).first()
-
+            pick_id = curated_pick_request.isbn13 or curated_pick_request.isbn10
+            curated_pick = _get_pick_by_isbn(pick_id=pick_id)
             if curated_pick is None:
                 curated_pick = CuratedPick(
                     list_id=curated_pick_request.list_id,
@@ -213,6 +208,33 @@ def delete_curated_pick_by_id(pick_id: str):
         db.session.close()
 
 
+def update_curated_pick_position(pick_id: str, request: Request):
+    """
+    Updates a curated pick.
+    :param pick_id: ID of the curated pick to update.
+    :type pick_id: str, expected an ISBN10 or ISBN13
+    :param request: Request object
+    :type request: Request
+    :return: JSON object of the updated curated pick if the request is successful, or aborts with an error response.
+    :rtype: flask.Response
+    """
+    try:
+        if request.is_json:
+            new_position = request.get_json().get('position')
+            return _update_pick_position(pick_id=pick_id, new_position=new_position)
+
+    except InvalidRequestError as e:
+        raise e
+
+    except Exception as e:
+        print(f'🧨 {e}')
+        db.session.rollback()
+        abort(422)
+
+    finally:
+        db.session.close()
+
+
 @inject.params(book_service=BookServiceBase)
 def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
     """
@@ -229,6 +251,7 @@ def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
             json_books = []
             for cp in curated_picks:
                 book = book_service.fetch_book(None, isbn10=cp.isbn10, isbn13=cp.isbn13)
+                book["position"] = cp.position
                 if book:  # Ensure book data is valid
                     json_books.append(book)
 
@@ -271,9 +294,7 @@ def _delete_pick_by_id(pick_id: str):
     Returns the book ID based on the ISBN provided.
     """
     if is_valid_isbn(isbn10=pick_id, isbn13=pick_id):
-        curated_pick = CuratedPick.query.filter(
-            or_(CuratedPick.isbn13 == pick_id, CuratedPick.isbn10 == pick_id)
-        ).first()
+        curated_pick = _get_pick_by_isbn(pick_id=pick_id)
         if curated_pick:
             curated_pick.delete()
             return "", 204  # RESTful standard for successful DELETE
@@ -281,3 +302,80 @@ def _delete_pick_by_id(pick_id: str):
             raise InvalidRequestError(code=404, message=f"The specified pick ID:'{pick_id}' does not exist.")
     else:
         raise InvalidRequestError(code=404, message=f"Incorrect pick ID format:'{pick_id}'. ISBN10 or ISBN13 expected.")
+
+
+def _update_pick_position(pick_id: str, new_position: int):
+    """
+    Updates the position of a curated pick.
+    Adjusts other picks in the range between the current and new positions.
+    :param pick_id: The ID of the pick (ISBN).
+    :param new_position: The new position for the pick.
+    :return: JSON response indicating success.
+    """
+    # Validate the new position
+    if new_position < 1:
+        raise InvalidRequestError(code=400, message="Invalid position value.")
+
+    # Fetch the target pick
+    target_pick = _get_pick_by_isbn(pick_id=pick_id)
+    if not target_pick:
+        raise InvalidRequestError(code=404, message=f"The specified pick ID:'{pick_id}' does not exist.")
+
+    current_position = target_pick.position
+    if current_position == new_position:
+        # No changes needed
+        return jsonify({"success": True, "pick": CuratedPickRequest.from_model(target_pick).to_dict()})
+
+    is_moving_up = new_position < current_position
+
+    # Use a placeholder to avoid conflicts
+    placeholder_position = -1
+    target_pick.position = placeholder_position
+    target_pick.update()
+
+    # Fetch only affected picks
+    affected_picks_query = CuratedPick.query.filter(CuratedPick.list_id == target_pick.list_id)
+
+    if is_moving_up:
+        affected_picks_query = affected_picks_query.filter(
+            CuratedPick.position >= new_position, CuratedPick.position < current_position
+        ).order_by(CuratedPick.position.desc())  # Process from bottom to top
+    else:
+        affected_picks_query = affected_picks_query.filter(
+            CuratedPick.position > current_position, CuratedPick.position <= new_position
+        ).order_by(CuratedPick.position.asc())  # Process from top to bottom
+
+    affected_picks = affected_picks_query.all()
+
+    # Update affected picks sequentially
+    for pick in affected_picks:
+        pick.position += 1 if is_moving_up else -1
+        pick.update()
+
+    # Update the target pick position
+    target_pick.position = new_position
+    target_pick.update()
+
+    # Commit all changes
+    db.session.commit()
+
+    try:
+        json = CuratedPickRequest.from_model(target_pick).to_dict()
+    except Exception as e:
+        raise InvalidRequestError(code=500, message=str(e))
+
+    return jsonify({
+        "success": True,
+        "pick": json
+    })
+
+
+def _get_pick_by_isbn(pick_id):
+    """
+    Returns a CuratedPick object based on the ISBN provided.
+    :param pick_id: ISBN10 or ISBN13
+    :return: CuratedPick object or None
+    """
+    return CuratedPick.query.filter(
+        or_(CuratedPick.isbn13 == pick_id, CuratedPick.isbn10 == pick_id)
+    ).first()
