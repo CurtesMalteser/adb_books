@@ -7,6 +7,7 @@ from app.models.book_dto import db
 from app.models.curated_list import CuratedList, CuratedListRequest
 from app.models.curated_pick import CuratedPickRequest, CuratedPick
 from app.services.book_service_base import BookServiceBase
+from app.utils.isbn_utils import is_valid_isbn
 
 
 def store_curated_list(request: Request):
@@ -190,6 +191,28 @@ def store_curated_pick(request: Request):
         db.session.close()
 
 
+def delete_curated_pick_by_id(pick_id: str):
+    """
+    Deletes a curated pick by ID.
+    :param pick_id: ID of the curated pick to delete.
+    :type pick_id: str, expected an ISBN10 or ISBN13
+    :return: 204 status code if the request is successful, or aborts with an error response.
+    :rtype: flask.Response
+    """
+    try:
+        return _delete_pick_by_id(pick_id)
+    except InvalidRequestError as e:
+        raise e
+
+    except Exception as e:
+        print(f'🧨 {e}')
+        db.session.rollback()
+        abort(500)
+
+    finally:
+        db.session.close()
+
+
 @inject.params(book_service=BookServiceBase)
 def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
     """
@@ -241,3 +264,20 @@ def _validate_list_exist_or_404(list_id):
     curated_list = CuratedList.query.get(list_id)
     if not curated_list:
         raise InvalidRequestError(code=404, message="The specified list does not exist.")
+
+
+def _delete_pick_by_id(pick_id: str):
+    """
+    Returns the book ID based on the ISBN provided.
+    """
+    if is_valid_isbn(isbn10=pick_id, isbn13=pick_id):
+        curated_pick = CuratedPick.query.filter(
+            or_(CuratedPick.isbn13 == pick_id, CuratedPick.isbn10 == pick_id)
+        ).first()
+        if curated_pick:
+            curated_pick.delete()
+            return "", 204  # RESTful standard for successful DELETE
+        else:
+            raise InvalidRequestError(code=404, message=f"The specified pick ID:'{pick_id}' does not exist.")
+    else:
+        raise InvalidRequestError(code=404, message=f"Incorrect pick ID format:'{pick_id}'. ISBN10 or ISBN13 expected.")

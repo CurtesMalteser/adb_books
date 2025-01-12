@@ -349,9 +349,39 @@ class CuratedPicksTestCase(BaseTestCase):
     # e.g: position 4 id 4 goes into position 2, position 2 id 2 goes into position 3 and position 3 id 3 goes into position 4, so forth and so on.
     # TODO: Add test no such pick id
 
-    # TODO: Add test for DELETE missing role
-    # TODO: Add test for DELETE removes pick
-    # TODO: Add test no such pick id
+    def test_delete_curated_pick_returns_403_permission_not_found(self):
+        self.with_context(self._setup_curated_lists)
+        res = self.client.delete('/curated-pick/1', headers=self._get_headers(["booklist:get"]))
+        self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
+
+    def test_delete_curated_pick_returns_204(self):
+        def add_picked_entries():
+            """
+            Add some CuratedList's to the database.
+            """
+            self._setup_curated_lists()
+            self._setup_curated_picks()
+
+        self.mock_book_service.mock_books(self._mock_books())
+
+        self.with_context(add_picked_entries)
+
+        res = self.client.delete('/curated-pick/9780061120084', headers=self._get_headers(["booklist:curator"]))
+        self.assertEqual(204, res.status_code)
+
+    def test_delete_curated_pick_returns_404_no_such_pick(self):
+        self.with_context(self._setup_curated_lists)
+        pick_id = 9780061120084
+        res = self.client.delete(f"/curated-pick/{pick_id}", headers=self._get_headers(["booklist:curator"]))
+        expect_message = f"The specified pick ID:'{pick_id}' does not exist."
+        self.assert_error(res, expect_status_code=404, expect_message=expect_message)
+
+    def test_delete_curated_pick_returns_404_invalid_pick_id(self):
+        self.with_context(self._setup_curated_lists)
+        pick_id = 1_000_000
+        res = self.client.delete(f"/curated-pick/{pick_id}", headers=self._get_headers(["booklist:curator"]))
+        expect_message = f"Incorrect pick ID format:'{pick_id}'. ISBN10 or ISBN13 expected."
+        self.assert_error(res, expect_status_code=404, expect_message=expect_message)
 
 
 if __name__ == '__main__':
