@@ -7,6 +7,7 @@ import {
   errorSelector,
 } from "./booksSlice";
 import NYTimesBestsellers from "../bestseller/NYTimesBestsellers";
+import CuratedPicks from "../pick/CuratedPicks";
 
 function HomePage() {
 
@@ -21,6 +22,7 @@ function HomePage() {
         statusSelector={statusSelector}
         errorSelector={errorSelector}
       />
+      <CuratedPicks />
       <NYTimesBestsellers />
     </>
   );

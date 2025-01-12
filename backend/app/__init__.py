@@ -3,22 +3,31 @@ from flask import (
     jsonify,
 )
 
+from app.di.di_config import initialize_di
+
+initialize_di()
+
 from flask_cors import CORS
 
-from .auth.auth import requires_auth
+from .auth.auth import requires_auth, AuthError
 from .booklist import booklist_bp
+from .di import di_config
 from .exceptions.invalid_request_error import InvalidRequestError
 from .exceptions.json_error import json_error
 from .models.book import Book
 from .models.book_dto import *
 from .ny_times import ny_times_bp
 from .search import search_bp
+from .curated_picks import curated_picks_bp
 
+from .models.curated_list import CuratedList
+from .models.curated_pick import CuratedPick
 from .models.user import User
 from .models.book_shelf import BookShelf
 from .shelf import shelf_bp
 
 
+# TODO: Handle DELETE requests with 204 status code if successful
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
@@ -35,6 +44,7 @@ def create_app(test_config=None):
     app.register_blueprint(ny_times_bp)
     app.register_blueprint(booklist_bp)
     app.register_blueprint(shelf_bp)
+    app.register_blueprint(curated_picks_bp)
 
     @app.after_request
     def after_request(response):
@@ -70,11 +80,15 @@ def create_app(test_config=None):
         )
 
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(_):
         return json_error(message="Internal Server Error", code=500)
 
     @app.errorhandler(InvalidRequestError)
     def invalid_request_error(error):
         return json_error(error.message, error.code)
+
+    @app.errorhandler(AuthError)
+    def auth_error(error):
+        return json_error(error.error['description'], error.status_code)
 
     return app

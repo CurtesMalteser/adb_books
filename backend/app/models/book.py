@@ -64,13 +64,13 @@ class Book:
     pages: Optional[int]
     subjects: List[str]
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """
         Converts the dataclass instance into a dictionary.
 
         :return: A dictionary with field names as keys and their corresponding field values.
         """
-        return asdict(self)
+        return {key: value for key, value in asdict(self).items() if value is not None}
 
     @classmethod
     def from_json(cls, d: dict[str, str]):

@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask_cors import cross_origin
 
+from app.auth.auth import requires_auth
 from app.config import (
     FICTION_PATH,
     NON_FICTION_PATH,
@@ -12,7 +13,8 @@ ny_times_bp = Blueprint('ny-times', __name__)
 
 @ny_times_bp.route('/ny-times/best-sellers/fiction')
 @cross_origin()
-def fetch_fiction():
+@requires_auth('booklist:get')
+def fetch_fiction(_):
     """
     Data provided by The New York Times.
     For details visit: https://developer.nytimes.com.
@@ -25,7 +27,8 @@ def fetch_fiction():
 
 @ny_times_bp.route('/ny-times/best-sellers/non-fiction')
 @cross_origin()
-def fetch_non_fiction():
+@requires_auth('booklist:get')
+def fetch_non_fiction(_):
     """
     Data provided by The New York Times.
     For details visit: https://developer.nytimes.com.
