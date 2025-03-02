@@ -40,6 +40,10 @@ class BookShelf(db.Model):
         self.userID = user_id
         self.shelf = shelf
 
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
     @staticmethod
     def get_or_none(book_id, user_id) -> 'BookShelf':
         return BookShelf.query.filter_by(

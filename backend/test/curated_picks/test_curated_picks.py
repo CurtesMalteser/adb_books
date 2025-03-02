@@ -47,20 +47,6 @@ class CuratedPicksTestCase(BaseTestCase):
             ),
         ]
 
-    @staticmethod
-    def _get_headers(permissions):
-        return {
-            "Authorization": f'Bearer {json.dumps({"sub": "auth0|test_user", "permissions": permissions})}'
-        }
-
-    def assert_error(self, res, expect_status_code, expect_message):
-        """
-        Asserts that the response is an error response with the specified status code and message.
-        """
-        self.assertEqual(expect_status_code, res.status_code)
-        message = res.get_json().get('message')
-        self.assertEqual(expect_message, message)
-
     def test_post_curated_list_returns_201(self):
         payload = {
             "name": "Test List",

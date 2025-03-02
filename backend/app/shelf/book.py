@@ -30,12 +30,11 @@ def store_book(payload, request: Request):
             # Ensure the user exists or create a new one
             user = User.query.filter_by(userID=user_id).first()
             if user is None:
-                user = User(
+                User(
                     userID=user_id,
                     username=payload.get('name'),
                     email=payload.get('email')
-                )
-                db.session.add(user)
+                ).insert()
 
             # Deserialize the incoming book request
             book_request = BookResponse.from_json(d=request.get_json())
@@ -64,16 +63,11 @@ def store_book(payload, request: Request):
                 book.insert()
 
             # Link the book to the user's shelf (BookShelf table)
-            new_book_shelf = BookShelf(
+            BookShelf(
                 isbn13=book.isbn13,
                 shelf=ShelfEnum.from_str(book_request.shelf),
                 user_id=user_id
-            )
-
-            db.session.add(new_book_shelf)
-
-            # Commit all changes in one go
-            db.session.commit()
+            ).insert()
 
             return jsonify({
                 "success": True,

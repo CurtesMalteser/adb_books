@@ -31,3 +31,10 @@ class User(db.Model):
 
     # Relationship to shelves
     bookshelves = relationship(BookShelf, backref='user', lazy=True)
+
+    def insert(self):
+        """
+        Inserts the User object into the database.
+        """
+        db.session.add(self)
+        db.session.commit()

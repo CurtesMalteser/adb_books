@@ -1,5 +1,6 @@
 # Makes book_managment_api module available,
 # if test_book_managment_api.py run from test dir, since the scriptpath is a relative path.
+import json
 import os
 import sys
 import unittest
@@ -63,3 +64,17 @@ class BaseTestCase(unittest.TestCase):
         """
         with self.app.app_context():
             func()
+
+    def assert_error(self, res, expect_status_code, expect_message):
+        """
+        Asserts that the response is an error response with the specified status code and message.
+        """
+        self.assertEqual(expect_status_code, res.status_code)
+        message = res.get_json().get('message')
+        self.assertEqual(expect_message, message)
+
+    @staticmethod
+    def _get_headers(permissions):
+        return {
+            "Authorization": f'Bearer {json.dumps({"sub": "auth0|test_user", "permissions": permissions})}'
+        }
