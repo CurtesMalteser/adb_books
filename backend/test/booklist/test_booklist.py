@@ -54,7 +54,7 @@ class BookListTestCase(BaseTestCase):
         self.assertEqual(3, res.json['limit'])
         self.assertEqual(7, res.json['total_results'])
 
-    def test_get_booklist_returns__403_permission_not_found(self):
+    def test_get_booklist_returns_403_permission_not_found(self):
         res = self.client.get('/booklist/test', headers=self._get_headers(["test:get"]))
 
         self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
