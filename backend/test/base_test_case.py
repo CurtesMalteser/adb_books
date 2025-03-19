@@ -27,8 +27,8 @@ database_path = "postgresql://{}:{}@{}/{}".format(username, username, 'localhost
 class BaseTestCase(unittest.TestCase):
     """Base class for all test cases."""
 
-    mock_book_service: MockBookService
-    mock_nyt_service: MockNyTimesService
+    mock_book_service: MockBookService | None
+    mock_nyt_service: MockNyTimesService | None
 
     def setUp(self):
         self.mock_book_service = MockBookService()
@@ -53,6 +53,8 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         inject.clear()
+        self.mock_book_service = None
+        self.mock_nyt_service = None
         self.drop_all()
 
     def drop_all(self):
