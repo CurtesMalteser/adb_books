@@ -181,7 +181,6 @@ def store_curated_pick(request: Request):
         db.session.rollback()
         abort(422)
 
-
     finally:
         db.session.close()
 
