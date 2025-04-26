@@ -44,6 +44,10 @@ class BookShelf(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @staticmethod
     def get_or_none(book_id, user_id) -> 'BookShelf':
         return BookShelf.query.filter_by(

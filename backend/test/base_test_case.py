@@ -85,5 +85,10 @@ class BaseTestCase(unittest.TestCase):
     @staticmethod
     def _get_headers(permissions):
         return {
-            "Authorization": f'Bearer {json.dumps({"sub": "auth0|test_user", "permissions": permissions})}'
+            "Authorization": f'Bearer {json.dumps({
+                "sub": "auth0|test_user",
+                "permissions": permissions,
+                "email": "test_user@email.test",
+                "name": "test_user",
+            })}'
         }

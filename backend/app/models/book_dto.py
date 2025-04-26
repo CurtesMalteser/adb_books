@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import List, Optional
 
 from flask_migrate import Migrate
@@ -82,7 +82,7 @@ class BookResponse:
         Converts the dataclass instance into a dictionary.
         :return: A dictionary with field names as keys and their corresponding field values.
         """
-        return {key: value for key, value in asdict(self).items() if value is not None}
+        return {key: value for key, value in self.__dict__.items() if value is not None}
 
     @classmethod
     def from_json(cls, d: dict[str, str]) -> 'BookResponse':

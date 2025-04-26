@@ -1,4 +1,3 @@
-import json
 import os
 
 import inject
@@ -7,14 +6,13 @@ from requests import (
     JSONDecodeError,
     RequestException,
 )
+from werkzeug.exceptions import HTTPException
 
 from app.exceptions.invalid_request_error import InvalidRequestError
-from app.models.book import Book
 from app.models.book_dto import BookResponse, BookDto, db
 from app.models.book_shelf import BookShelf
 from app.models.shelf import ShelfEnum
 from app.models.user import User
-from app.redis_config import redis_client
 from app.services.book_service_base import BookServiceBase
 
 api_key = os.environ.get('ISBNDB_KEY')
@@ -71,7 +69,7 @@ def store_book(payload, request: Request):
 
             return jsonify({
                 "success": True,
-                "book": book_request
+                "book": book_request.to_dict()
             })
 
         except InvalidRequestError as e:
@@ -106,20 +104,9 @@ def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
     :rtype: flask.Response
     """
     try:
-        book = redis_client.get(book_id)
-
         book_shelf: BookShelf = BookShelf.get_or_none(book_id, user_id)
 
-        if book is None:
-            book_dict = book_service.fetch_book(book_shelf, isbn13=book_id)
-
-        else:
-            book = json.loads(book)
-            book = Book.from_json(d=book)
-
-            book.shelf = book_service.get_shelf_or_none(book_shelf)
-
-            book_dict = book.to_dict()
+        book_dict = book_service.fetch_book(book_shelf, isbn13=book_id)
 
         return jsonify(
             {
@@ -137,21 +124,30 @@ def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
 
 def remove_book(user_id: str, book_id: str):
     try:
-        book_shelf = BookShelf.get_or_none(user_id=user_id, book_id=book_id)
+        book_shelf = BookShelf.get_or_none(book_id=book_id, user_id=user_id)
+
+        if book_shelf is None:
+            abort(404)
+
+        db.session.add(book_shelf)
         db.session.delete(book_shelf)
         db.session.commit()
 
-    except:
+    except HTTPException:
+        raise
+
+    except Exception as e:
         db.session.rollback()
+        print(f"🧨 {e}")
+        abort(500)
 
     finally:
-        db.session.close()
+        db.session.remove()
 
     return jsonify({
         "success": True,
         "deleted": book_id,
     })
-
 
 def update_book_shelf(user_id: str, book_id: str, request: Request):
     """
