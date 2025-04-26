@@ -6,7 +6,6 @@ from requests import (
     JSONDecodeError,
     RequestException,
 )
-from werkzeug.exceptions import HTTPException
 
 from app.exceptions.invalid_request_error import InvalidRequestError
 from app.models.book_dto import BookResponse, BookDto, db
@@ -133,9 +132,6 @@ def remove_book(user_id: str, book_id: str):
         db.session.delete(book_shelf)
         db.session.commit()
 
-    except HTTPException:
-        raise
-
     except Exception as e:
         db.session.rollback()
         print(f"🧨 {e}")
@@ -151,6 +147,8 @@ def remove_book(user_id: str, book_id: str):
 
 def update_book_shelf(user_id: str, book_id: str, request: Request):
     """
+    Updates the shelf for a given book and user.
+
     :param user_id: User ID obtained from the JWT token
     :type user_id: str
     :param book_id: ISBN13 of the book from path parameter
@@ -162,30 +160,30 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
     :rtype: flask.Response
     """
     try:
-        if request.is_json:
-            book_shelf = BookShelf.get_or_none(book_id, user_id)
+        if not request.is_json:
+            abort(400, description="Invalid content type. Expected JSON.")
 
-            if book_shelf is not None:
-                shelf = ShelfEnum.from_str(request.get_json().get('shelf'))
-                book_shelf.shelf = shelf
-                db.session.add(book_shelf)
-                db.session.commit()
+        book_shelf = BookShelf.get_or_none(book_id, user_id)
 
-                return jsonify({
-                    "success": True,
-                    "error": 200
-                })
-            else:
-                raise InvalidRequestError(code=409,
-                                          message=f'Shelf not found for the given user and ISBN-13. Try add to shelf first')
+        if not book_shelf:
+            raise InvalidRequestError(
+                code=409,
+                message="Shelf not found for the given user and ISBN-13. Try adding to shelf first."
+            )
 
-    except InvalidRequestError as e:
-        raise e
+        shelf = ShelfEnum.from_str(request.get_json().get('shelf'))
+        book_shelf.shelf = shelf
+        db.session.commit()  # no need to db.session.add(book_shelf), SQLAlchemy tracks it
+
+        return jsonify({"success": True})
+
+    except InvalidRequestError:
+        raise
 
     except Exception as e:
-        print(f'🧨 {e}')
+        print(f"🧨 {e}")
         db.session.rollback()
         abort(422)
 
     finally:
-        db.session.close()
+        db.session.remove()
