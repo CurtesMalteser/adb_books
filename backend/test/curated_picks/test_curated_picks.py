@@ -4,7 +4,7 @@ Module for testing the Curated Picks endpoints.
 import json
 import unittest
 
-from app.models.book_dto import db, BookResponse
+from app.models.book_dto import BookResponse
 from app.models.curated_list import CuratedList
 from app.models.curated_pick import CuratedPick
 from test.base_test_case import BaseTestCase
@@ -17,14 +17,12 @@ class CuratedPicksTestCase(BaseTestCase):
     def _setup_curated_lists():
         CuratedList(name='Test List', description='Test Description').insert()
         CuratedList(name='Test List 2', description='Test Description 2').insert()
-        db.session.close()
 
     @staticmethod
     def _setup_curated_picks():
         CuratedPick(list_id=1, isbn13="9780061120084", position=3, isbn10=None).insert()
         CuratedPick(list_id=1, isbn13=None, position=1, isbn10="0471958697").insert()
         CuratedPick(list_id=2, isbn13="9780061120086", position=2, isbn10="1471958697").insert()
-        db.session.close()
 
     @staticmethod
     def _mock_books():
@@ -161,7 +159,6 @@ class CuratedPicksTestCase(BaseTestCase):
             Add some CuratedList's to the database.
             """
             CuratedList(name='Test List', description='Test Description').insert()
-            db.session.close()
 
         payload = {
             "list_id": "1",
@@ -409,8 +406,6 @@ class CuratedPicksTestCase(BaseTestCase):
 
             self.mock_book_service.mock_books(list(mock_books.values()))
 
-            db.session.close()
-
         self.with_context(add_picked_entries)
 
         payload = {
@@ -464,8 +459,6 @@ class CuratedPicksTestCase(BaseTestCase):
                 CuratedPick(list_id=2, isbn13=book.isbn13, position=book_position, isbn10=book.isbn10).insert()
 
             self.mock_book_service.mock_books(list(mock_books.values()))
-
-            db.session.close()
 
         self.with_context(add_picked_entries)
 

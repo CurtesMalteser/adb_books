@@ -11,7 +11,7 @@ from sqlalchemy import (Column,
                         ForeignKey,
                         Enum,
                         UniqueConstraint,
-                        Integer, event,
+                        Integer, event, select,
                         )
 
 from app.models.book_dto import db, BookDto
@@ -50,24 +50,30 @@ class BookShelf(db.Model):
 
     @staticmethod
     def get_or_none(book_id, user_id) -> 'BookShelf':
-        return BookShelf.query.filter_by(
+        statement = select(BookShelf).filter_by(
             isbn13=book_id,
             userID=user_id
-        ).one_or_none()
+        )
+        result = db.session.execute(statement).scalar_one_or_none()
+        return result
 
 
 def _delete_book_if_orphaned(isbn13):
     # Check if any BookShelf entries are left for this ISBN
-    remaining_shelves = BookShelf.query.filter_by(isbn13=isbn13).count()
-    if remaining_shelves == 0:
-        # If no shelves are left for the book, delete the book
-        book = BookDto.query.filter_by(isbn13=isbn13).one_or_none()
-        if book:
-            book.delete()
+    remaining_shelf = db.session.execute(
+        select(BookShelf).filter_by(isbn13=isbn13)
+    ).scalar_one_or_none()
 
-@event.listens_for(db.session, 'after_flush')
-def check_for_orphaned_books(session, _):
-    # Call your orphan check logic here
-    for obj in session.deleted:
-        if isinstance(obj, BookShelf):
-            _delete_book_if_orphaned(obj.isbn13)
+    if not remaining_shelf:
+        book = db.session.execute(
+            select(BookDto).filter_by(isbn13=isbn13)
+        ).scalar_one_or_none()
+        if book:
+            db.session.delete(book)
+
+
+@event.listens_for(db.session, 'after_commit')
+def cleanup_orphaned_books(session):
+    orphaned = session.info.pop('orphaned_books', set())
+    for isbn13 in orphaned:
+        _delete_book_if_orphaned(isbn13)

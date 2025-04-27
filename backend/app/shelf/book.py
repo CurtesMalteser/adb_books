@@ -80,9 +80,6 @@ def store_book(payload, request: Request):
             db.session.rollback()
             abort(422)
 
-        finally:
-            db.session.close()
-
     else:
         abort(404, "Content type is not supported.")
 
@@ -128,7 +125,6 @@ def remove_book(user_id: str, book_id: str):
         if book_shelf is None:
             abort(404)
 
-        db.session.add(book_shelf)
         db.session.delete(book_shelf)
         db.session.commit()
 
@@ -136,9 +132,6 @@ def remove_book(user_id: str, book_id: str):
         db.session.rollback()
         print(f"🧨 {e}")
         abort(500)
-
-    finally:
-        db.session.remove()
 
     return jsonify({
         "success": True,
@@ -184,6 +177,3 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
         print(f"🧨 {e}")
         db.session.rollback()
         abort(422)
-
-    finally:
-        db.session.remove()

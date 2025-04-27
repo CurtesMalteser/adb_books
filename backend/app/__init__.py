@@ -91,4 +91,8 @@ def create_app(test_config=None):
     def auth_error(error):
         return json_error(error.error['description'], error.status_code)
 
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db.session.remove()
+
     return app
