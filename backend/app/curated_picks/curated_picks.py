@@ -230,7 +230,7 @@ def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
         if list_id := list_id_func():
             _validate_list_exist_or_404(list_id)
 
-            curated_picks = CuratedPick.query.filter_by(list_id=list_id).all()
+            curated_picks = CuratedPick.find_by_list_id(list_id)
 
             json_books = []
             for cp in curated_picks:

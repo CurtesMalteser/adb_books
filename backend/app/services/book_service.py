@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 import redis
 import requests
 
-from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME
+from app.config import GET_BOOK_ENDPOINT, REDIS_EXPIRY_TIME, SEARCH_ENDPOINT
 from app.models.book import Book
 from app.models.book_shelf import BookShelf
 from app.services.book_service_base import BookServiceBase
@@ -64,6 +64,24 @@ class BookService(BookServiceBase):
         self.redis_client.set(book_id, json.dumps(book_dict), ex=REDIS_EXPIRY_TIME)
         return book_dict
 
+    def search_books(self, query: str, page: int, limit: int) -> dict:
+        url = urljoin(SEARCH_ENDPOINT, f'{query}?page={page}&pageSize={limit}')
+        response = requests.get(url, headers=self.headers)
+        response.raise_for_status()
+        json_data = response.json()
+        total_results = json_data.get('total')
+        json_books = json_data.get('books')
+        json_books = [Book.from_json(d).to_dict() for d in json_books]
+
+        return {
+            "success": True,
+            "books": json_books,
+            "page": page,
+            "limit": limit,
+            "total_results": total_results
+        }
+
+
     @staticmethod
     def _load_cached_book(book):
         """
@@ -71,7 +89,7 @@ class BookService(BookServiceBase):
         :param book:
         :return: book details as a dictionary.
         """
-        book = json.loads(book.decode())
+        book = json.loads(book)
         book = Book.from_json(d=book)
         book_dict = book.to_dict()
         return book_dict

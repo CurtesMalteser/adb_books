@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (Column,
                         String,
                         Integer,
-                        ARRAY,
+                        ARRAY, select,
                         )
 from sqlalchemy.orm import mapped_column
 
@@ -63,6 +63,11 @@ class BookDto(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @classmethod
+    def search_by_title(cls, title_query: str):
+        stmt = select(cls).filter(cls.title.ilike(f"%{title_query}%")).order_by(cls.id)
+        return db.session.execute(stmt).scalars().all()
 
 
 @dataclass
