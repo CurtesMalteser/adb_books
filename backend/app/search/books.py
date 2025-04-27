@@ -25,8 +25,8 @@ api_key = os.environ.get('ISBNDB_KEY')
 @inject.params(book_service=BookServiceBase)
 def books(book_service: BookServiceBase):
     """
-    :param user_agent: The user agent string to be used in the request headers.
-    :type user_agent: str
+    :param book_service: BookServiceBase instance for fetching book data.
+    :type book_service: BookServiceBase
 
     :return: JSON array of books if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
