@@ -1,4 +1,3 @@
-import json
 import os
 
 import inject
@@ -9,12 +8,10 @@ from requests import (
 )
 
 from app.exceptions.invalid_request_error import InvalidRequestError
-from app.models.book import Book
 from app.models.book_dto import BookResponse, BookDto, db
 from app.models.book_shelf import BookShelf
 from app.models.shelf import ShelfEnum
 from app.models.user import User
-from app.redis_config import redis_client
 from app.services.book_service_base import BookServiceBase
 
 api_key = os.environ.get('ISBNDB_KEY')
@@ -30,12 +27,11 @@ def store_book(payload, request: Request):
             # Ensure the user exists or create a new one
             user = User.query.filter_by(userID=user_id).first()
             if user is None:
-                user = User(
+                User(
                     userID=user_id,
                     username=payload.get('name'),
                     email=payload.get('email')
-                )
-                db.session.add(user)
+                ).insert()
 
             # Deserialize the incoming book request
             book_request = BookResponse.from_json(d=request.get_json())
@@ -64,20 +60,15 @@ def store_book(payload, request: Request):
                 book.insert()
 
             # Link the book to the user's shelf (BookShelf table)
-            new_book_shelf = BookShelf(
+            BookShelf(
                 isbn13=book.isbn13,
                 shelf=ShelfEnum.from_str(book_request.shelf),
                 user_id=user_id
-            )
-
-            db.session.add(new_book_shelf)
-
-            # Commit all changes in one go
-            db.session.commit()
+            ).insert()
 
             return jsonify({
                 "success": True,
-                "book": book_request
+                "book": book_request.to_dict()
             })
 
         except InvalidRequestError as e:
@@ -88,9 +79,6 @@ def store_book(payload, request: Request):
             print(f'🧨 {e}')
             db.session.rollback()
             abort(422)
-
-        finally:
-            db.session.close()
 
     else:
         abort(404, "Content type is not supported.")
@@ -112,20 +100,9 @@ def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
     :rtype: flask.Response
     """
     try:
-        book = redis_client.get(book_id)
-
         book_shelf: BookShelf = BookShelf.get_or_none(book_id, user_id)
 
-        if book is None:
-            book_dict = book_service.fetch_book(book_shelf, isbn13=book_id)
-
-        else:
-            book = json.loads(book)
-            book = Book.from_json(d=book)
-
-            book.shelf = book_service.get_shelf_or_none(book_shelf)
-
-            book_dict = book.to_dict()
+        book_dict = book_service.fetch_book(book_shelf, isbn13=book_id)
 
         return jsonify(
             {
@@ -143,24 +120,28 @@ def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
 
 def remove_book(user_id: str, book_id: str):
     try:
-        book_shelf = BookShelf.get_or_none(user_id=user_id, book_id=book_id)
+        book_shelf = BookShelf.get_or_none(book_id=book_id, user_id=user_id)
+
+        if book_shelf is None:
+            abort(404)
+
         db.session.delete(book_shelf)
         db.session.commit()
 
-    except:
+    except Exception as e:
         db.session.rollback()
-
-    finally:
-        db.session.close()
+        print(f"🧨 {e}")
+        abort(500)
 
     return jsonify({
         "success": True,
         "deleted": book_id,
     })
 
-
 def update_book_shelf(user_id: str, book_id: str, request: Request):
     """
+    Updates the shelf for a given book and user.
+
     :param user_id: User ID obtained from the JWT token
     :type user_id: str
     :param book_id: ISBN13 of the book from path parameter
@@ -172,30 +153,27 @@ def update_book_shelf(user_id: str, book_id: str, request: Request):
     :rtype: flask.Response
     """
     try:
-        if request.is_json:
-            book_shelf = BookShelf.get_or_none(book_id, user_id)
+        if not request.is_json:
+            abort(400, description="Invalid content type. Expected JSON.")
 
-            if book_shelf is not None:
-                shelf = ShelfEnum.from_str(request.get_json().get('shelf'))
-                book_shelf.shelf = shelf
-                db.session.add(book_shelf)
-                db.session.commit()
+        book_shelf = BookShelf.get_or_none(book_id, user_id)
 
-                return jsonify({
-                    "success": True,
-                    "error": 200
-                })
-            else:
-                raise InvalidRequestError(code=409,
-                                          message=f'Shelf not found for the given user and ISBN-13. Try add to shelf first')
+        if not book_shelf:
+            raise InvalidRequestError(
+                code=409,
+                message="Shelf not found for the given user and ISBN-13. Try adding to shelf first."
+            )
 
-    except InvalidRequestError as e:
-        raise e
+        shelf = ShelfEnum.from_str(request.get_json().get('shelf'))
+        book_shelf.shelf = shelf
+        db.session.commit()  # no need to db.session.add(book_shelf), SQLAlchemy tracks it
+
+        return jsonify({"success": True})
+
+    except InvalidRequestError:
+        raise
 
     except Exception as e:
-        print(f'🧨 {e}')
+        print(f"🧨 {e}")
         db.session.rollback()
         abort(422)
-
-    finally:
-        db.session.close()

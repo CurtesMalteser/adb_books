@@ -50,9 +50,6 @@ def store_curated_list(request: Request):
         db.session.rollback()
         abort(422)
 
-    finally:
-        db.session.close()
-
 
 def store_curated_list_update(request: Request):
     """
@@ -96,7 +93,7 @@ def delete_curated_list_by_id(list_id: int):
     :rtype: dict or flask.Response
     """
     try:
-        curated_list = CuratedList.query.get(list_id)
+        curated_list = db.session.get(CuratedList, list_id)
 
         if curated_list:
             curated_list.delete()
@@ -112,9 +109,6 @@ def delete_curated_list_by_id(list_id: int):
         print(f'🧨 {e}')
         db.session.rollback()
         abort(500)
-
-    finally:
-        db.session.close()
 
 
 def get_curated_lists():
@@ -182,10 +176,6 @@ def store_curated_pick(request: Request):
         abort(422)
 
 
-    finally:
-        db.session.close()
-
-
 def delete_curated_pick_by_id(pick_id: str):
     """
     Deletes a curated pick by ID.
@@ -203,9 +193,6 @@ def delete_curated_pick_by_id(pick_id: str):
         print(f'🧨 {e}')
         db.session.rollback()
         abort(500)
-
-    finally:
-        db.session.close()
 
 
 def update_curated_pick_position(pick_id: str, request: Request):
@@ -231,9 +218,6 @@ def update_curated_pick_position(pick_id: str, request: Request):
         db.session.rollback()
         abort(422)
 
-    finally:
-        db.session.close()
-
 
 @inject.params(book_service=BookServiceBase)
 def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
@@ -246,7 +230,7 @@ def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
         if list_id := list_id_func():
             _validate_list_exist_or_404(list_id)
 
-            curated_picks = CuratedPick.query.filter_by(list_id=list_id).all()
+            curated_picks = CuratedPick.find_by_list_id(list_id)
 
             json_books = []
             for cp in curated_picks:
@@ -284,7 +268,7 @@ def _get_curated_pick_request_or_throw(json: dict) -> CuratedPickRequest:
 
 
 def _validate_list_exist_or_404(list_id):
-    curated_list = CuratedList.query.get(list_id)
+    curated_list = db.session.get(CuratedList, list_id)
     if not curated_list:
         raise InvalidRequestError(code=404, message="The specified list does not exist.")
 

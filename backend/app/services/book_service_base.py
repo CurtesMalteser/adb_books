@@ -18,6 +18,10 @@ class BookServiceBase(ABC):
                    isbn13: str | None = None) -> dict:
         pass
 
+    @abstractmethod
+    def search_books(self, query: str, page: int, limit: int) -> dict:
+        pass
+
     @staticmethod
     def get_shelf_or_none(book_shelf):
         """

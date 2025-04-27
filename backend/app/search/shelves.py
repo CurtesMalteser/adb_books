@@ -2,6 +2,7 @@ from flask import (
     request,
     abort,
 )
+
 from app.exceptions.invalid_request_error import InvalidRequestError
 from app.models.book_dto import BookDto
 from app.pagination.books import paginate
@@ -15,10 +16,7 @@ def shelves():
         raise InvalidRequestError(message="Missing 'q' parameter", code=400)
 
     try:
-        query = lambda: (BookDto.query
-                         .filter(BookDto.title.ilike('%{}%'.format(query_param)))
-                         .order_by(BookDto.id)
-                         .all())
+        query = lambda: BookDto.search_by_title(query_param)
 
         return paginate(request=request, query=query)
 

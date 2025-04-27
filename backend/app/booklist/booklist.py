@@ -1,6 +1,7 @@
-from flask import (
-    request,
-)
+"""
+This module contains the logic for the booklist endpoint.
+"""
+from flask import request
 
 from app.models.book_dto import BookDto
 from app.models.book_shelf import BookShelf
@@ -9,6 +10,13 @@ from app.pagination.books import paginate
 
 
 def booklist(used_id: str, shelf: str):
+    """
+    Fetches a booklist by shelf type.
+    :param used_id:
+    :param shelf:
+    :return: paginated list of books
+    :rtype: flask.Response or None
+    """
     query = lambda: (
         BookDto.query
         .join(BookShelf, BookShelf.isbn13 == BookDto.isbn13)

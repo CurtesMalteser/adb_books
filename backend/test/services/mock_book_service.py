@@ -26,6 +26,29 @@ class MockBookService(BookServiceBase):
 
         return self._store.get(key).to_dict()
 
+    def search_books(self, query: str, page: int, limit: int) -> dict:
+        """
+        Mock search functionality.
+        Returns books whose title contains the query string (case insensitive).
+        """
+        matching_books = [
+            book.to_dict() for book in self._store.values()
+            if query.lower() in book.title.lower()
+        ]
+
+        # Simulate pagination
+        start = (int(page) - 1) * int(limit)
+        end = start + int(limit)
+        paginated_books = matching_books[start:end]
+
+        return {
+            "success": True,
+            "books": paginated_books,
+            "page": int(page),
+            "limit": int(limit),
+            "total_results": len(matching_books),
+        }
+
     @staticmethod
     def _validate_isbn(isbn10, isbn13):
         """

@@ -20,6 +20,16 @@ def _is_shelf(value):
 @cross_origin()
 @requires_auth('booklist:get')
 def fetch_booklist(payload, shelf: str):
+    """
+    Fetches a booklist by shelf type.
+
+    :param payload: The payload containing user information, typically including the user ID.
+    :type payload: dict
+    :param shelf: The type of shelf to fetch books from. Must be one of 'read', 'want-to-read', or 'currently-reading'.
+    :type shelf: str
+    :return: A JSON response containing a list of books stored in the specified shelf.
+    :rtype: flask.Response
+    """
     user_id = payload.get('sub')
     if _is_shelf(shelf):
         return booklist(used_id=user_id, shelf=shelf)

@@ -8,7 +8,7 @@ from sqlalchemy import (
     String,
     Integer,
     ForeignKey,
-    UniqueConstraint,
+    UniqueConstraint, select,
 )
 from sqlalchemy.orm import relationship
 
@@ -58,6 +58,12 @@ class CuratedPick(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    @classmethod
+    def find_by_list_id(cls, list_id: int):
+        stmt = select(cls).filter_by(list_id=list_id)
+        return db.session.execute(stmt).scalars().all()
+
 
 
 @dataclass

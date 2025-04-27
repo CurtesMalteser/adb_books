@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import List, Optional
 
 from flask_migrate import Migrate
@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (Column,
                         String,
                         Integer,
-                        ARRAY,
+                        ARRAY, select,
                         )
 from sqlalchemy.orm import mapped_column
 
@@ -64,6 +64,11 @@ class BookDto(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    @classmethod
+    def search_by_title(cls, title_query: str):
+        stmt = select(cls).filter(cls.title.ilike(f"%{title_query}%")).order_by(cls.id)
+        return db.session.execute(stmt).scalars().all()
+
 
 @dataclass
 class BookResponse:
@@ -82,7 +87,7 @@ class BookResponse:
         Converts the dataclass instance into a dictionary.
         :return: A dictionary with field names as keys and their corresponding field values.
         """
-        return {key: value for key, value in asdict(self).items() if value is not None}
+        return {key: value for key, value in self.__dict__.items() if value is not None}
 
     @classmethod
     def from_json(cls, d: dict[str, str]) -> 'BookResponse':
