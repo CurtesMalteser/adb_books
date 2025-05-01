@@ -7,11 +7,13 @@ from app.search.shelves import shelves
 
 search_bp = Blueprint('search', __name__)
 
+
 @search_bp.route('/search/books')
 @cross_origin()
 @requires_auth('booklist:get')
 def search_books(_):
     return books()
+
 
 @search_bp.route('/search/shelves')
 @cross_origin()

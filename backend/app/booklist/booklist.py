@@ -17,7 +17,9 @@ def booklist(used_id: str, shelf: str):
     :return: paginated list of books
     :rtype: flask.Response or None
     """
-    query = lambda: (
+
+    def query():
+        return (
         BookDto.query
         .join(BookShelf, BookShelf.isbn13 == BookDto.isbn13)
         .filter(BookShelf.userID == used_id)

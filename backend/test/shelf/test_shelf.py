@@ -119,7 +119,7 @@ class ShelfTestCase(BaseTestCase):
             "shelf": "currently-reading"
         }
 
-        res = self.client.patch(f'/book/9780061120084', json=payload, headers=self._get_headers(["book:update_shelf"]))
+        res = self.client.patch('/book/9780061120084', json=payload, headers=self._get_headers(["book:update_shelf"]))
         expected_message = 'Shelf not found for the given user and ISBN-13. Try adding to shelf first.'
         self.assert_error(res, expect_status_code=409,
                           expect_message=expected_message)
@@ -149,6 +149,7 @@ class ShelfTestCase(BaseTestCase):
         expected_message = 'Unprocessable: 422 Unprocessable Entity: The request was well-formed but was unable to be followed due to semantic errors.'
         self.assert_error(res, expect_status_code=422,
                           expect_message=expected_message)
+
 
 if __name__ == '__main__':
     unittest.main()

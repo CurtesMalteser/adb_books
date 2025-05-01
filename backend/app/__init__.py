@@ -1,3 +1,10 @@
+"""
+Flask app for ADB Books API.
+
+This module initializes the Flask app.
+It's responsible for setting up the database, configuring CORS, injecting dependencies,
+and registers the blueprints for different functionalities.
+"""
 from flask import (
     Flask,
     jsonify,
@@ -15,7 +22,7 @@ from .di import di_config
 from .exceptions.invalid_request_error import InvalidRequestError
 from .exceptions.json_error import json_error
 from .models.book import Book
-from .models.book_dto import *
+from .models.book_dto import setup_db, db
 from .ny_times import ny_times_bp
 from .search import search_bp
 from .curated_picks import curated_picks_bp

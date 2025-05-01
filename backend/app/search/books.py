@@ -42,7 +42,7 @@ def books(book_service: BookServiceBase):
         result = book_service.search_books(query=query, page=page, limit=limit)
         return jsonify(result)
 
-    except JSONDecodeError as e:
+    except JSONDecodeError:
         abort(500, description="Invalid JSON response from upstream server.")
 
     except HTTPError as e:

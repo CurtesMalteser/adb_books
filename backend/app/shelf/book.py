@@ -138,6 +138,7 @@ def remove_book(user_id: str, book_id: str):
         "deleted": book_id,
     })
 
+
 def update_book_shelf(user_id: str, book_id: str, request: Request):
     """
     Updates the shelf for a given book and user.
