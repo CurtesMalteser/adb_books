@@ -1,3 +1,8 @@
+"""
+This module provides methods for managing curated lists and picks in a book application.
+
+It provides logic for the curated list and pick endpoints
+"""
 import inject
 from flask import abort, jsonify, Request
 from sqlalchemy import or_
@@ -13,6 +18,7 @@ from app.utils.isbn_utils import is_valid_isbn
 def store_curated_list(request: Request):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
@@ -54,6 +60,7 @@ def store_curated_list(request: Request):
 def store_curated_list_update(request: Request):
     """
     Updates a curated list.
+
     :param request:
     :type request: Request
     :return: updated curated list JSON object if the request is successful, or aborts with an error response.
@@ -87,6 +94,7 @@ def store_curated_list_update(request: Request):
 def delete_curated_list_by_id(list_id: int):
     """
     Deletes a curated list by ID.
+
     :param list_id: ID of the curated list to delete.
     :type list_id: int
     :return: 204 status code if the request is successful, or aborts with an error response.
@@ -114,6 +122,7 @@ def delete_curated_list_by_id(list_id: int):
 def get_curated_lists():
     """
     Fetches curated picks.
+
     :return: JSON array of curated lists if the request is successful, or aborts with an error response.
     :rtype: lists or flask.Response
     """
@@ -135,6 +144,7 @@ def get_curated_lists():
 def store_curated_pick(request: Request):
     """
     Adds a curated pick.
+
     :return: JSON object of the added curated pick if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
@@ -179,6 +189,7 @@ def store_curated_pick(request: Request):
 def delete_curated_pick_by_id(pick_id: str):
     """
     Deletes a curated pick by ID.
+
     :param pick_id: ID of the curated pick to delete.
     :type pick_id: str, expected an ISBN10 or ISBN13
     :return: 204 status code if the request is successful, or aborts with an error response.
@@ -198,6 +209,7 @@ def delete_curated_pick_by_id(pick_id: str):
 def update_curated_pick_position(pick_id: str, request: Request):
     """
     Updates a curated pick.
+
     :param pick_id: ID of the curated pick to update.
     :type pick_id: str, expected an ISBN10 or ISBN13
     :param request: Request object
@@ -223,6 +235,7 @@ def update_curated_pick_position(pick_id: str, request: Request):
 def get_curated_picks(list_id_func: callable, book_service: BookServiceBase):
     """
     Fetches curated picks.
+
     :return: JSON array of curated lists if the request is successful, or aborts with an error response.
     :rtype: lists or flask.Response
     """
@@ -274,9 +287,7 @@ def _validate_list_exist_or_404(list_id):
 
 
 def _delete_pick_by_id(pick_id: str):
-    """
-    Returns the book ID based on the ISBN provided.
-    """
+    """Returns the book ID based on the ISBN provided."""
     if is_valid_isbn(isbn10=pick_id, isbn13=pick_id):
         curated_pick = _get_pick_by_isbn(pick_id=pick_id)
         if curated_pick:
@@ -291,6 +302,7 @@ def _delete_pick_by_id(pick_id: str):
 def _update_pick_position(pick_id: str, new_position: int):
     """
     Updates the position of a curated pick.
+
     Adjusts other picks in the range between the current and new positions.
     :param pick_id: The ID of the pick (ISBN).
     :param new_position: The new position for the pick.
@@ -357,6 +369,7 @@ def _update_pick_position(pick_id: str, new_position: int):
 def _get_pick_by_isbn(pick_id):
     """
     Returns a CuratedPick object based on the ISBN provided.
+
     :param pick_id: ISBN10 or ISBN13
     :return: CuratedPick object or None
     """

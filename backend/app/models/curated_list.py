@@ -1,7 +1,5 @@
-"""
-This module contains the CuratedList model.
-"""
-from dataclasses import dataclass, asdict
+"""This module contains the CuratedList model."""
+from dataclasses import dataclass
 
 from sqlalchemy import (
     Column,
@@ -20,6 +18,7 @@ target_metadata = db.metadata
 class CuratedList(db.Model):
     """
     A class that represents a curated list of books.
+
     This list can be used to group books together based on a specific choice.
     """
     __tablename__ = 'curated_lists'
@@ -32,26 +31,28 @@ class CuratedList(db.Model):
     curated_picks = relationship('CuratedPick', back_populates='curated_list', cascade='all, delete-orphan')
 
     def __init__(self, name, description):
+        """Initialize a CuratedList instance."""
         self.name = name
         self.description = description
 
     def insert(self):
+        """Inserts a new curated list into the database."""
         db.session.add(self)
         db.session.commit()
 
     def update(self):
+        """Updates the existing curated list in the database."""
         db.session.commit()
 
     def delete(self):
+        """Deletes the curated list from the database."""
         db.session.delete(self)
         db.session.commit()
 
 
 @dataclass
 class CuratedListRequest:
-    """
-    A dataclass that represents a response for a CuratedList object.
-    """
+    """A dataclass that represents a response for a CuratedList object."""
     name: str
     description: str
     id: int | None = None
@@ -60,6 +61,7 @@ class CuratedListRequest:
     def from_model(cls, model: CuratedList) -> 'CuratedListRequest':
         """
         Converts a CuratedList model instance into a CuratedListRequest dataclass instance.
+
         :param model: CuratedList
         :return: CuratedListRequest instance
         """
@@ -75,11 +77,13 @@ class CuratedListRequest:
 
         :return: A dictionary with field names as keys and their corresponding field values.
         """
-        return {key: value for key, value in asdict(self).items() if value is not None}
+        return {key: value for key, value in self.__dict__.items() if value is not None}
 
     @classmethod
     def from_json(cls, d: dict[str, str]) -> 'CuratedListRequest':
         """
+        Create a CuratedList object from a JSON dictionary.
+
         :param d: CuratedList JSON dictionary
         :return: CuratedList object
         """

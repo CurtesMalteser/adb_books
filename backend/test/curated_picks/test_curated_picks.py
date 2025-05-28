@@ -1,6 +1,4 @@
-"""
-Module for testing the Curated Picks endpoints.
-"""
+"""Module for testing the Curated Picks endpoints."""
 import json
 import unittest
 
@@ -155,9 +153,7 @@ class CuratedPicksTestCase(BaseTestCase):
 
     def test_post_curated_pick_returns_422_bad_request_missing_isbn(self):
         def add_picked_lists():
-            """
-            Add some CuratedList's to the database.
-            """
+            """Add some CuratedList's to the database."""
             CuratedList(name='Test List', description='Test Description').insert()
 
         payload = {
@@ -197,9 +193,7 @@ class CuratedPicksTestCase(BaseTestCase):
 
     def test_post_curated_pick_returns_409_entry_already_exists(self):
         def add_picked_entries():
-            """
-            Add some CuratedList's to the database.
-            """
+            """Add some CuratedList's to the database."""
             self._setup_curated_lists()
             self._setup_curated_picks()
 
@@ -223,9 +217,7 @@ class CuratedPicksTestCase(BaseTestCase):
 
     def test_fetch_curated_picks_returns_code_200(self):
         def add_picked_entries():
-            """
-            Add some CuratedList's to the database.
-            """
+            """Add some CuratedList's to the database."""
             self._setup_curated_lists()
             self._setup_curated_picks()
 
@@ -334,9 +326,7 @@ class CuratedPicksTestCase(BaseTestCase):
 
     def test_delete_curated_pick_returns_204(self):
         def add_picked_entries():
-            """
-            Add some CuratedList's to the database.
-            """
+            """Add some CuratedList's to the database."""
             self._setup_curated_lists()
             self._setup_curated_picks()
 
@@ -379,9 +369,7 @@ class CuratedPicksTestCase(BaseTestCase):
 
     def test_patch_curated_pick_returns_200_when_moving_book_down_in_ranking(self):
         def add_picked_entries():
-            """
-            Add some CuratedList's to the database.
-            """
+            """Add some CuratedList's to the database."""
             mock_books = {
                 i: BookResponse(
                     isbn13=isbn13,
@@ -432,9 +420,7 @@ class CuratedPicksTestCase(BaseTestCase):
 
     def test_put_curated_pick_returns_200_when_moving_book_up_in_ranking(self):
         def add_picked_entries():
-            """
-            Add some CuratedList's to the database.
-            """
+            """Add some CuratedList's to the database."""
             mock_books = {
                 i: BookResponse(
                     isbn13=isbn13,

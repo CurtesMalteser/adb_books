@@ -1,3 +1,8 @@
+"""
+This module contains the Search API for fetching book data from app databases or external APIs.
+
+Used by the search blueprint.
+"""
 import os
 
 import inject
@@ -25,6 +30,8 @@ api_key = os.environ.get('ISBNDB_KEY')
 @inject.params(book_service=BookServiceBase)
 def books(book_service: BookServiceBase):
     """
+    Fetches book based on the search query provided in the request.
+
     :param book_service: BookServiceBase instance for fetching book data.
     :type book_service: BookServiceBase
 
@@ -36,7 +43,7 @@ def books(book_service: BookServiceBase):
     limit = request.args.get('limit', default=DEFAULT_LIMIT)
 
     if not query:
-        raise  InvalidRequestError(message="Missing 'q' parameter", code=400)
+        raise InvalidRequestError(message="Missing 'q' parameter", code=400)
 
     try:
         result = book_service.search_books(query=query, page=page, limit=limit)

@@ -1,0 +1,11 @@
+# .flake8
+[flake8]
+ignore = D212
+max-line-length = 200
+docstring-convention = google
+exclude = .venv, __pycache__, migrations
+per-file-ignores =
+    app/__init__.py: E402, F401
+    app/config.py: D100
+    app/auth/auth.py: E402
+    test/*: D100,D101,D102,D103,D104

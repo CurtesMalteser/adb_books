@@ -1,11 +1,10 @@
-from app.models.book_dto import BookResponse
+from app.models.book_dto import BookResponse, BookDto
 from test.base_test_case import BaseTestCase
 
 
 class SearchTestCase(BaseTestCase):
-    def test_search_books_success(self):
-        """Should return 200 when permission and query are valid"""
 
+    def test_search_books_success(self):
         mock_book = BookResponse(
             isbn13="9781234567897",
             isbn10=None,
@@ -29,7 +28,6 @@ class SearchTestCase(BaseTestCase):
         self.assertEqual(data['books'][0]['title'], "Mocked Book")
 
     def test_search_books_403_for_missing_permission(self):
-        """Should return 403 when missing role/permission"""
         res = self.client.get(
             '/search/books?q=test',
             headers=self._get_headers([])  # Empty permissions!
@@ -38,7 +36,6 @@ class SearchTestCase(BaseTestCase):
         self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
 
     def test_search_books_400_missing_query(self):
-        """Should return 400 if missing 'q' parameter"""
         res = self.client.get(
             '/search/books',
             headers=self._get_headers(["booklist:get"])
@@ -47,11 +44,8 @@ class SearchTestCase(BaseTestCase):
         self.assertEqual(res.status_code, 400)
 
     def test_search_shelves_success(self):
-        """Should return 200 when searching shelves"""
-
-        # First insert a book manually (through context!)
         def add_test_book():
-            from app.models.book_dto import BookDto
+            """Add a test book to the database."""
             book = BookDto(
                 isbn13="9781234567897",
                 title="Test Shelf Book",
@@ -72,7 +66,6 @@ class SearchTestCase(BaseTestCase):
         self.assertEqual(len(res.get_json()['books']), 1)
 
     def test_search_shelves_403_for_missing_permission(self):
-        """Should return 403 when missing role/permission"""
         res = self.client.get(
             '/search/shelves?q=Test',
             headers=self._get_headers([])  # Empty permissions
@@ -81,7 +74,6 @@ class SearchTestCase(BaseTestCase):
         self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
 
     def test_search_shelves_400_missing_query(self):
-        """Should return 400 if missing 'q' parameter"""
         res = self.client.get(
             '/search/shelves',
             headers=self._get_headers(["booklist:get"])

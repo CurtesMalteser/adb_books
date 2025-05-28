@@ -1,3 +1,4 @@
+"""This module provides a Flask blueprint for handling curated_picks routes."""
 from flask import Blueprint, request
 from flask_cors import cross_origin
 
@@ -21,6 +22,7 @@ curated_picks_bp = Blueprint('curated_picks', __name__)
 def add_curated_list(_):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
@@ -33,6 +35,7 @@ def add_curated_list(_):
 def update_curated_list(_):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
@@ -45,6 +48,7 @@ def update_curated_list(_):
 def delete_curated_list(_, list_id: int):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
@@ -57,6 +61,7 @@ def delete_curated_list(_, list_id: int):
 def fetch_curated_lists(_):
     """
     Fetches curated picks.
+
     :return: JSON array of curated picks if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """
@@ -69,6 +74,7 @@ def fetch_curated_lists(_):
 def add_curated_pick(_):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
@@ -81,6 +87,7 @@ def add_curated_pick(_):
 def update_curated_pick(_, pick_id: str):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
@@ -93,10 +100,10 @@ def update_curated_pick(_, pick_id: str):
 def delete_curated_pick(_, pick_id: str):
     """
     Adds a curated list.
+
     :return: JSON object of the added curated list if the request is successful, or aborts with an error response.
     :rtype: dict or flask.Response
     """
-
     return delete_curated_pick_by_id(pick_id)
 
 
@@ -106,6 +113,7 @@ def delete_curated_pick(_, pick_id: str):
 def fetch_curated_picks(_):
     """
     Fetches curated picks.
+
     :return: JSON array of curated picks if the request is successful, or aborts with an error response.
     :rtype: list or flask.Response
     """

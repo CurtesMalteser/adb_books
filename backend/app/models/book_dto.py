@@ -1,3 +1,4 @@
+"""This module contains the BookDto class and the BookResponse dataclass."""
 import os
 from dataclasses import dataclass
 from typing import List, Optional
@@ -21,13 +22,14 @@ db_path = db_path.replace('USER', username)
 db = SQLAlchemy()
 migrate = Migrate()
 
-'''
-setup_db(app)
-    binds a flask application and a SQLAlchemy service
-'''
-
 
 def setup_db(app, database_path=db_path):
+    """
+    Sets up the database connection for the Flask application.
+
+    setup_db(app)
+        binds a flask application and a SQLAlchemy service
+    """
     with app.app_context():
         app.config["SQLALCHEMY_DATABASE_URI"] = database_path
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -36,9 +38,7 @@ def setup_db(app, database_path=db_path):
 
 
 class BookDto(db.Model):
-    """
-    BookDto
-    """
+    """BookDto model."""
     __tablename__ = 'books'
 
     id = Column(Integer, primary_key=True)
@@ -48,33 +48,36 @@ class BookDto(db.Model):
     image = db.Column(String, nullable=True, default=None)
 
     def __init__(self, isbn13, title, authors, image):
+        """Initialize a BookDto instance."""
         self.isbn13 = isbn13
         self.title = title
         self.authors = authors
         self.image = image
 
     def insert(self):
+        """Inserts a new book into the database."""
         db.session.add(self)
         db.session.commit()
 
     def update(self):
+        """Updates an existing book in the database."""
         db.session.commit()
 
     def delete(self):
+        """Deletes a book from the database."""
         db.session.delete(self)
         db.session.commit()
 
     @classmethod
     def search_by_title(cls, title_query: str):
+        """Searches for books by title."""
         stmt = select(cls).filter(cls.title.ilike(f"%{title_query}%")).order_by(cls.id)
         return db.session.execute(stmt).scalars().all()
 
 
 @dataclass
 class BookResponse:
-    """
-    A class to represent a book with serialization to/from JSON and DTO.
-    """
+    """A class to represent a book with serialization to/from JSON and DTO."""
     isbn13: Optional[str]
     isbn10: Optional[str]
     title: str
@@ -85,6 +88,7 @@ class BookResponse:
     def to_dict(self) -> dict:
         """
         Converts the dataclass instance into a dictionary.
+
         :return: A dictionary with field names as keys and their corresponding field values.
         """
         return {key: value for key, value in self.__dict__.items() if value is not None}
@@ -92,6 +96,8 @@ class BookResponse:
     @classmethod
     def from_json(cls, d: dict[str, str]) -> 'BookResponse':
         """
+        Create a Book object from a JSON dictionary.
+
         :param d: Book JSON dictionary
         :return: Book object
         """
@@ -113,6 +119,8 @@ class BookResponse:
     @classmethod
     def from_ny_times_json(cls, d: dict[str, str]) -> 'BookResponse':
         """
+        Create a Book object from NYT JSON dictionary.
+
         :param d: Book JSON dictionary
         :return: Book object
         """

@@ -1,3 +1,8 @@
+"""
+This module declares the search Blueprint and the respective routes for the application.
+
+It provides endpoints to search for books and shelves, with authentication and CORS support.
+"""
 from flask import Blueprint
 from flask_cors import cross_origin
 
@@ -12,6 +17,7 @@ search_bp = Blueprint('search', __name__)
 @cross_origin()
 @requires_auth('booklist:get')
 def search_books(_):
+    """Invokes the search function for books."""
     return books()
 
 
@@ -19,4 +25,5 @@ def search_books(_):
 @cross_origin()
 @requires_auth('booklist:get')
 def search_shelves(_):
+    """Invokes the search function for shelves."""
     return shelves()

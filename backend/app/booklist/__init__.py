@@ -1,3 +1,4 @@
+"""This module provides a Flask blueprint for handling booklist-related routes."""
 from flask import Blueprint
 from flask_cors import cross_origin
 

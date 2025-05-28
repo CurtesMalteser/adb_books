@@ -1,3 +1,8 @@
+"""
+This module contains the fetch_books function, which retrieves bestseller data from The New York Times API.
+
+Used in the ny_times blueprint to fetch both fiction and non-fiction bestseller lists.
+"""
 import inject
 from flask import (
     request,
@@ -15,6 +20,7 @@ from app.services.ny_times_service_base import NYTimesServiceBase
 def fetch_books(path: str, book_service: NYTimesServiceBase):
     """
     Fetches bestseller data provided by The New York Times.
+
     Visit https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=<api_key> for available list names.
     :param path: The list_name_encoded field from the provided URL.
     :param book_service: NYTimesServiceBase instance.

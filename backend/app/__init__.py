@@ -1,5 +1,4 @@
-"""
-Flask app for ADB Books API.
+"""Flask app for ADB Books API.
 
 This module initializes the Flask app.
 It's responsible for setting up the database, configuring CORS, injecting dependencies,
@@ -36,6 +35,7 @@ from .shelf import shelf_bp
 
 # TODO: Handle DELETE requests with 204 status code if successful
 def create_app(test_config=None):
+    """Create and configure the Flask app."""
     app = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:

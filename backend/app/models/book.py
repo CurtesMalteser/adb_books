@@ -1,12 +1,12 @@
-"""
-Book model
-"""
-from dataclasses import dataclass, asdict
+"""Book model."""
+from dataclasses import dataclass
 from typing import List, Optional
 
 
 def _get_from_authors_or_raise(key, d: dict[str, str]) -> list[str]:
     """
+    Get authors from the JSON dictionary.
+
     :param d: Book JSON dictionary
     :return: list of authors
     :rtype: list[str]
@@ -36,7 +36,8 @@ def _get_optional_float_or_raise(key: str, d: dict[str, str]) -> float:
 
     try:
         return float(rating)
-    except:
+    except Exception as e:
+        print(f'🧨 {e}')
         raise Exception('Value of key rating is not expected type number, value is: {}'.format(rating))
 
 
@@ -44,10 +45,7 @@ def _get_optional_float_or_raise(key: str, d: dict[str, str]) -> float:
 # needed to display only the book card.
 @dataclass
 class Book:
-    """
-    TODO: Update to match details
-    A class to represent a book with serialization to/from JSON and DTO.
-    """
+    """A class to represent a book with serialization to/from JSON and DTO."""
     isbn: Optional[str]
     isbn13: str
     title: str
@@ -70,11 +68,13 @@ class Book:
 
         :return: A dictionary with field names as keys and their corresponding field values.
         """
-        return {key: value for key, value in asdict(self).items() if value is not None}
+        return {key: value for key, value in self.__dict__.items() if value is not None}
 
     @classmethod
     def from_json(cls, d: dict[str, str]):
         """
+        Create a Book object from a JSON dictionary.
+
         :param d: Book JSON dictionary
         :return: Book object
         """

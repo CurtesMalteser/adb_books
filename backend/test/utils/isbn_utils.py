@@ -1,12 +1,11 @@
-"""
-Utility functions for generating mock ISBN13s.
-"""
+"""Utility functions for generating mock ISBN13s."""
 import random
 
 
 def generate_random_isbn13() -> str:
     """
     Generate a valid random ISBN-13.
+
     :return: A valid random ISBN-13.
     """
     prefix = '978'  # Common prefix for ISBN-13

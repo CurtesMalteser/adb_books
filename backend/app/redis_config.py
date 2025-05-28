@@ -1,6 +1,4 @@
-"""
-This module is responsible for configuring the Redis client.
-"""
+"""This module is responsible for configuring the Redis client."""
 import os
 
 import redis

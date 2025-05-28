@@ -1,3 +1,4 @@
+"""Handles pagination for book search results."""
 from flask import (
     jsonify,
     abort,
@@ -19,7 +20,6 @@ def paginate(request, query):
     :return: A JSON response containing the success status, book data, pagination details, and total results.
     :rtype: flask.Response or None
     """
-
     page = request.args.get('page', DEFAULT_PAGE, type=int)
     size = request.args.get('limit', DEFAULT_LIMIT, type=int)
     size = size if size <= DEFAULT_LIMIT else DEFAULT_LIMIT
@@ -30,7 +30,8 @@ def paginate(request, query):
 
     try:
         data_books = query()
-    except:
+    except Exception as e:
+        print(f'🧨 {e}')
         abort(500)
 
     total_results = len(data_books)

@@ -1,6 +1,3 @@
-"""
-Module for testing the get booklist endpoint
-"""
 import json
 
 from app.models.book_dto import BookDto
@@ -44,8 +41,9 @@ class BookListTestCase(BaseTestCase):
 
     def test_get_booklist_returns_200_booklist_with_pagination(self):
         headers = self._get_headers(["booklist:get"])
-        setup = lambda: self._setup_bookshelf(self._get_user(headers), ShelfEnum.READ)
-        self.with_context(setup)
+        self.with_context(
+            lambda: self._setup_bookshelf(self._get_user(headers), ShelfEnum.READ)
+        )
         res = self.client.get('/booklist/read?page=2&limit=3', headers=headers)
 
         self.assertEqual(200, res.status_code)

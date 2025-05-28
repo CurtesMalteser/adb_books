@@ -1,10 +1,10 @@
+"""Module for handling JSON error responses in Flask applications."""
 from flask import jsonify
 
 
 def json_error(message, code):
     """
-    A helper function for use with the @app.errorhandler(error) decorator to
-    standardize error handling across the application.
+    A helper function for use with the @app.errorhandler(error) decorator across the application.
 
     Each error handler should return a uniform JSON response with an appropriate
     message and status code.
@@ -18,9 +18,4 @@ def json_error(message, code):
                 "message": "resource not found"
             }
     """
-
-    return jsonify({
-        "success": False,
-        "error": code,
-        "message": message,
-        }), code
+    return jsonify({"success": False, "error": code, "message": message}), code

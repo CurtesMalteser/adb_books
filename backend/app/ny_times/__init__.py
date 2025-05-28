@@ -1,3 +1,4 @@
+"""This module provides routes to fetch best-selling books from The New York Times API."""
 from flask import Blueprint
 from flask_cors import cross_origin
 
@@ -17,6 +18,7 @@ ny_times_bp = Blueprint('ny-times', __name__)
 def fetch_fiction(_):
     """
     Data provided by The New York Times.
+
     For details visit: https://developer.nytimes.com.
     Fetches "Combined Print and E-Book Fiction" list.
     :return: JSON array of books if the request is successful, or aborts with an error response.
@@ -31,6 +33,7 @@ def fetch_fiction(_):
 def fetch_non_fiction(_):
     """
     Data provided by The New York Times.
+
     For details visit: https://developer.nytimes.com.
     Fetches "Combined Print & E-Book Nonfiction" list.
     :return: JSON array of books if the request is successful, or aborts with an error response.

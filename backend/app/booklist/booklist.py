@@ -1,6 +1,4 @@
-"""
-This module contains the logic for the booklist endpoint.
-"""
+"""This module contains the logic for the booklist endpoint."""
 from flask import request
 
 from app.models.book_dto import BookDto
@@ -12,6 +10,7 @@ from app.pagination.books import paginate
 def booklist(used_id: str, shelf: str):
     """
     Fetches a booklist by shelf type.
+
     :param used_id:
     :param shelf:
     :return: paginated list of books
@@ -19,13 +18,18 @@ def booklist(used_id: str, shelf: str):
     """
 
     def query():
+        """
+        Query the database for books on the specified shelf for the given user ID.
+
+        :return: query
+        """
         return (
-        BookDto.query
-        .join(BookShelf, BookShelf.isbn13 == BookDto.isbn13)
-        .filter(BookShelf.userID == used_id)
-        .filter(BookShelf.shelf == ShelfEnum.from_str(shelf))
-        .order_by(BookDto.title)
-        .all()
-    )
+            BookDto.query
+            .join(BookShelf, BookShelf.isbn13 == BookDto.isbn13)
+            .filter(BookShelf.userID == used_id)
+            .filter(BookShelf.shelf == ShelfEnum.from_str(shelf))
+            .order_by(BookDto.title)
+            .all()
+        )
 
     return paginate(request=request, query=query)

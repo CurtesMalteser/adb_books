@@ -36,20 +36,24 @@ class BookShelf(db.Model):
     __table_args__ = (UniqueConstraint('isbn13', 'userID', name='_isbn13_user_uc'),)
 
     def __init__(self, isbn13, user_id, shelf):
+        """Initialize a BookShelf instance."""
         self.isbn13 = isbn13
         self.userID = user_id
         self.shelf = shelf
 
     def insert(self):
+        """Inserts a new bookshelf association into the database."""
         db.session.add(self)
         db.session.commit()
 
     def delete(self):
+        """Deletes a bookshelf association from the database."""
         db.session.delete(self)
         db.session.commit()
 
     @staticmethod
     def get_or_none(book_id, user_id) -> 'BookShelf':
+        """Retrieves a BookShelf instance by ISBN13 and userID."""
         statement = select(BookShelf).filter_by(
             isbn13=book_id,
             userID=user_id
@@ -74,6 +78,11 @@ def _delete_book_if_orphaned(isbn13):
 
 @event.listens_for(db.session, 'after_commit')
 def cleanup_orphaned_books(session):
+    """
+    Cleanup orphaned books after a commit.
+
+    :param session: db.session
+    """
     orphaned = session.info.pop('orphaned_books', set())
     for isbn13 in orphaned:
         _delete_book_if_orphaned(isbn13)

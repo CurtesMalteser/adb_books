@@ -70,5 +70,6 @@ class NyTimesTestCase(BaseTestCase):
         res = self.client.get('/ny-times/best-sellers/non-fiction', headers=self._get_headers(["booklist:get"]))
         self.assert_error(res, expect_status_code=500, expect_message='Internal Server Error')
 
+
 if __name__ == '__main__':
     unittest.main()

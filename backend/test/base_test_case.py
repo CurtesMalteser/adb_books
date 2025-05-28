@@ -75,9 +75,7 @@ class BaseTestCase(unittest.TestCase):
             func()
 
     def assert_error(self, res, expect_status_code, expect_message):
-        """
-        Asserts that the response is an error response with the specified status code and message.
-        """
+        """Asserts that the response is an error response with the specified status code and message."""
         self.assertEqual(expect_status_code, res.status_code)
         message = res.get_json().get('message')
         self.assertEqual(expect_message, message)

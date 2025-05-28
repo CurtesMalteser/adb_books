@@ -1,6 +1,4 @@
-"""
-This module contains the CuratedPick model.
-"""
+"""This module contains the CuratedPick model."""
 from dataclasses import dataclass
 
 from sqlalchemy import (
@@ -22,6 +20,7 @@ target_metadata = db.metadata
 class CuratedPick(db.Model):
     """
     A class that represents a single book pick within a curated list.
+
     This class is used to associate a book with a specific position within a curated list.
     """
     __tablename__ = 'curated_picks'
@@ -40,37 +39,40 @@ class CuratedPick(db.Model):
     )
 
     def __init__(self, list_id, isbn13, isbn10, position):
+        """Initialize a CuratedPick instance."""
         self.list_id = list_id
         self.isbn13 = isbn13
         self.isbn10 = isbn10
         self.position = position
 
     def __str__(self):
+        """Provides a string representation of the CuratedPick instance."""
         return f'CuratedPick(list_id={self.list_id}, isbn13={self.isbn13}, isbn10={self.isbn10}, position={self.position})'
 
     def insert(self):
+        """Inserts a new curated pick into the database."""
         db.session.add(self)
         db.session.commit()
 
     def update(self):
+        """Updates the existing curated pick in the database."""
         db.session.commit()
 
     def delete(self):
+        """Deletes the curated pick from the database."""
         db.session.delete(self)
         db.session.commit()
 
     @classmethod
     def find_by_list_id(cls, list_id: int):
+        """Retrieves all curated picks associated with a specific list ID."""
         stmt = select(cls).filter_by(list_id=list_id)
         return db.session.execute(stmt).scalars().all()
 
 
-
 @dataclass
 class CuratedPickRequest:
-    """
-    A dataclass that represents a response for a CuratedList object.
-    """
+    """A dataclass that represents a response for a CuratedList object."""
     list_id: int
     position: int
     id: int | None = None
@@ -81,6 +83,7 @@ class CuratedPickRequest:
     def from_model(cls, model: CuratedPick) -> 'CuratedPickRequest':
         """
         Converts a CuratedPick model instance into a CuratedPickRequest dataclass instance.
+
         :param model: CuratedPick
         :return: CuratedPickRequest instance
         """
@@ -94,6 +97,7 @@ class CuratedPickRequest:
     def to_dict(self) -> dict:
         """
         Converts the dataclass instance into a dictionary.
+
         Add ISBNs dynamically if they are present.
         Client should check for the presence of ISBNs before using them.
 
@@ -115,6 +119,8 @@ class CuratedPickRequest:
     @classmethod
     def from_json(cls, d: dict[str, str]) -> 'CuratedPickRequest':
         """
+        Create a CuratedPick object from a JSON dictionary.
+
         :param d: CuratedPick JSON dictionary
         :return: CuratedPick object
         """
@@ -126,6 +132,11 @@ class CuratedPickRequest:
         )
 
     def __post_init__(self):
+        """
+        Validate the provided ISBNs to ensure they are in a correct format.
+
+        :raise ValueError: If the ISBNs are not valid.
+        """
         if not self.isbn10 and not self.isbn13:
             raise ValueError("At least one of 'isbn10' or 'isbn13' must be provided.")
 

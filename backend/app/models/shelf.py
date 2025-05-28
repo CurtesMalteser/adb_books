@@ -8,7 +8,9 @@ The models support serialization to/from JSON, making them suitable for use in A
 """
 import enum
 
+
 class ShelfEnum(enum.Enum):
+    """Enum class representing the different shelves a book can belong to."""
     WANT_TO_READ = 1
     CURRENTLY_READING = 2
     READ = 3

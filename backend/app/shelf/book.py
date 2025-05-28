@@ -1,3 +1,9 @@
+"""
+This module provides functions for managing books in a user's shelf.
+
+It includes operations such as adding, fetching, removing, and updating books in the shelf.
+These functions are used in the `shelf_bp` Blueprint to handle API requests related to book management.
+"""
 import os
 
 import inject
@@ -19,6 +25,14 @@ user_agent = os.environ.get('USER_AGENT')
 
 
 def store_book(payload, request: Request):
+    """
+    Stores a book in the user's shelf.
+
+    :param payload:
+    :param request:
+    :return: Book if the request is successful, or aborts with an error response.
+    :rtype: flask.Response
+    """
     user_id = payload.get('sub')
 
     if request.is_json:
@@ -87,6 +101,8 @@ def store_book(payload, request: Request):
 @inject.params(book_service=BookServiceBase)
 def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
     """
+    Fetches a book from the BookServiceBase using the provided user ID and book ID (ISBN13).
+
     :param user_id: User ID obtained from the JWT token
     :type user_id: str
 
@@ -119,6 +135,14 @@ def get_book(user_id: str, book_id: str, book_service: BookServiceBase):
 
 
 def remove_book(user_id: str, book_id: str):
+    """
+    Removes a book from the user's shelf.
+
+    :param user_id:
+    :param book_id:
+    :return: success json response, or aborts with an error response.
+    :rtype: flask.Response
+    """
     try:
         book_shelf = BookShelf.get_or_none(book_id=book_id, user_id=user_id)
 

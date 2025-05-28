@@ -84,6 +84,7 @@ class ShelfTestCase(BaseTestCase):
     def test_delete_book_405_method_not_allowed_due_to_missing_book_id(self):
         """
         Attempting to DELETE /book without a book_id triggers a 405 Method Not Allowed.
+
         The /book route exists for POST, but does not allow DELETE without specifying a book_id.
         """
         res = self.client.delete('/book', headers=self._get_headers(["book:delete_shelf"]))

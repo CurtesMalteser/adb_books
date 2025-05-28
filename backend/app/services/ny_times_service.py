@@ -1,5 +1,6 @@
 """
 This module contains the concrete implementation of the NYTimesServiceBase interface.
+
 The class fetches bestsellers list from a Redis instance or from the NYTimes API.
 """
 import json
@@ -25,17 +26,17 @@ from app.services.ny_times_service_base import NYTimesServiceBase
 
 
 class NyTimesService(NYTimesServiceBase):
-    """
-    Concrete implementation of the NYTimesServiceBase interface.
-    """
+    """Concrete implementation of the NYTimesServiceBase interface."""
     _api_key = os.environ.get('NYT_KEY')
 
     def __init__(self, redis_client: redis.Redis):
+        """Initializes the NyTimesService with a Redis client."""
         self.redis_client = redis_client
 
     def fetch_books(self, path: str, page: int, limit: int) -> dict:
         """
         Fetches bestsellers list from a Redis instance or from the NYTimes API.
+
         :param path: fiction, non-fiction, etc.
         :param page: the page number.
         :param limit: booklist response maximum size.
@@ -82,6 +83,7 @@ class NyTimesService(NYTimesServiceBase):
     def _redis_json(self, path: str, bestsellers: ResponseT) -> list[dict]:
         """
         Converts the bestsellers JSON string from Redis into a list of dictionaries.
+
         :param path: NYT bestsellers list name; e.g. 'non-fiction'.
         :param bestsellers: ResponseT from Redis.
         :return: books as a list of dictionaries or raise.
@@ -97,6 +99,7 @@ class NyTimesService(NYTimesServiceBase):
     def _bestsellers_json(self, path: str, json_response) -> list[dict]:
         """
         Converts the bestsellers JSON string from Redis into a list of dictionaries.
+
         :param path: NYT bestsellers list name; e.g. 'non-fiction'.
         :param json_response: ResponseT from Redis.
         :return: books as a list of dictionaries or raise.
