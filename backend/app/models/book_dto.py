@@ -8,7 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (Column,
                         String,
                         Integer,
-                        ARRAY, select,
+                        ARRAY,
+                        select,
                         )
 from sqlalchemy.orm import mapped_column
 

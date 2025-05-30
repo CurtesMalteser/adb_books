@@ -41,8 +41,6 @@ def _get_optional_float_or_raise(key: str, d: dict[str, str]) -> float:
         raise Exception('Value of key rating is not expected type number, value is: {}'.format(rating))
 
 
-# TODO: This will be used for book details only, and the main endpoint will return JSON with the properties
-# needed to display only the book card.
 @dataclass
 class Book:
     """A class to represent a book with serialization to/from JSON and DTO."""
