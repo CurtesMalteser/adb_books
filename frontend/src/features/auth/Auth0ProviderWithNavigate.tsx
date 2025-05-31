@@ -16,6 +16,7 @@ export const Auth0ProviderWithNavigate: React.FC<Auth0ProviderWithNavigateProps>
 
 
     const onRedirectCallback = (appState?: AppState | undefined, user?: User | undefined) => {
+        console.log("Auth0 onRedirectCallback", appState, user);
         navigate(appState?.returnTo || window.location.pathname);
     };
 
