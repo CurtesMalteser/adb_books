@@ -1,8 +1,9 @@
 """This module contains the BookDto class and the BookResponse dataclass."""
-import os
 from dataclasses import dataclass
+from os import environ as env
 from typing import List, Optional
 
+from dotenv import load_dotenv, find_dotenv
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (Column,
@@ -16,8 +17,12 @@ from sqlalchemy.orm import mapped_column
 from app.models.book import _get_from_key_or_raise
 from app.utils.isbn_utils import is_valid_isbn
 
-username = os.environ.get('USER') or os.environ.get('USERNAME')
-db_path = os.environ.get('DB_PATH')
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+
+username = env.get('USER') or env.get('USERNAME')
+db_path = env.get('DB_PATH')
 db_path = db_path.replace('USER', username)
 
 db = SQLAlchemy()

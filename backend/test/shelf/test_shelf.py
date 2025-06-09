@@ -54,11 +54,6 @@ class ShelfTestCase(BaseTestCase):
         res = self.client.get('/book/', headers=self._get_headers(["book:get_details"]))
         self.assert_error(res, expect_status_code=404, expect_message='Not found')
 
-    # @shelf_bp.route('/book/<string:book_id>', methods=['DELETE'])
-    # @requires_auth('book:delete_shelf')
-    # def delete_book(payload, book_id: str):
-    #     user_id = payload.get('sub')
-    #     return remove_book(user_id=user_id, book_id=book_id)
     def test_delete_book_403_permission_not_found(self):
         res = self.client.delete('/book/1234567890', headers=self._get_headers(["test:delete"]))
         self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')

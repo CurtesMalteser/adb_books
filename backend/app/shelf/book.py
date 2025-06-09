@@ -13,23 +13,26 @@ from requests import (
     RequestException,
 )
 
+from app.auth.user_service import UserService
 from app.exceptions.invalid_request_error import InvalidRequestError
 from app.models.book_dto import BookResponse, BookDto, db
 from app.models.book_shelf import BookShelf
 from app.models.shelf import ShelfEnum
-from app.models.user import User
 from app.services.book_service_base import BookServiceBase
 
 api_key = os.environ.get('ISBNDB_KEY')
 user_agent = os.environ.get('USER_AGENT')
 
 
-def store_book(payload, request: Request):
+@inject.params(user_service=UserService)
+def store_book(payload, request: Request, user_service: UserService):
     """
     Stores a book in the user's shelf.
 
     :param payload:
     :param request:
+    :param user_service: UserService instance provided by the dependency injector
+    :type user_service: UserService
     :return: Book if the request is successful, or aborts with an error response.
     :rtype: flask.Response
     """
@@ -39,13 +42,9 @@ def store_book(payload, request: Request):
         try:
             # @TODO: Add validate token endpoint and there this code should be applied
             # Ensure the user exists or create a new one
-            user = User.query.filter_by(userID=user_id).first()
+            user = user_service.get_or_create_user(payload)
             if user is None:
-                User(
-                    userID=user_id,
-                    username=payload.get('name'),
-                    email=payload.get('email')
-                ).insert()
+                raise InvalidRequestError(401, "User not found or not authenticated.")
 
             # Deserialize the incoming book request
             book_request = BookResponse.from_json(d=request.get_json())
