@@ -34,7 +34,7 @@ class ShelfTestCase(BaseTestCase):
         res = self.client.get('/book/1234567890', headers=self._get_headers(["test:get"]))
         self.assert_error(res, expect_status_code=403, expect_message='Permission not found.')
 
-    def test_fetch_book_200_with_correct_payload(self):
+    def test_fetch_book_200_with_correctde_payload(self):
         mock_book = BookResponse(
             isbn13='9780061120084',
             isbn10=None,
