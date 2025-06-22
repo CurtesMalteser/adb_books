@@ -362,3 +362,256 @@ All endpoints require a valid JWT token provided by Auth0. Include it in the `Au
     "total_results": 1
 }
 ```
+
+---
+### `GET /ny-times/best-sellers/fiction`
+### `GET /ny-times/best-sellers/non-fiction`
+**Description:** Fetches the New York Times Best Sellers list for fiction or non-fiction.
+**Permissions:** `booklist:get`
+**Response:**
+```json
+{
+    "books": [
+        {
+            "authors": [
+                "Navessa Allen"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781638932253.jpg",
+            "isbn10": "",
+            "isbn13": "9781638932253",
+            "title": "CAUGHT UP"
+        },
+        {
+            "authors": [
+                "V.E. Schwab"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781250320520.jpg",
+            "isbn10": "",
+            "isbn13": "9781250320520",
+            "title": "BURY OUR BONES IN THE MIDNIGHT SOIL"
+        },
+        {
+            "authors": [
+                "Taylor Jenkins Reid"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9780593158715.jpg",
+            "isbn10": "",
+            "isbn13": "9780593158715",
+            "title": "ATMOSPHERE"
+        },
+        {
+            "authors": [
+                "Bill Clinton and James Patterson"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9780316565103.jpg",
+            "isbn10": "",
+            "isbn13": "9780316565103",
+            "title": "THE FIRST GENTLEMAN"
+        },
+        {
+            "authors": [
+                "Carley Fortune"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9780593638910.jpg",
+            "isbn10": "",
+            "isbn13": "9780593638910",
+            "title": "ONE GOLDEN SUMMER"
+        },
+        {
+            "authors": [
+                "Stephen King"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781668089330.jpg",
+            "isbn10": "",
+            "isbn13": "9781668089330",
+            "title": "NEVER FLINCH"
+        },
+        {
+            "authors": [
+                "Sarah J. Maas"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781639736447.jpg",
+            "isbn10": "",
+            "isbn13": "9781639736447",
+            "title": "HOUSE OF FLAME AND SHADOW"
+        },
+        {
+            "authors": [
+                "Wally Lamb"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781668006399.jpg",
+            "isbn10": "",
+            "isbn13": "9781668006399",
+            "title": "THE RIVER IS WAITING"
+        },
+        {
+            "authors": [
+                "Freida McFadden"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781464227318.jpg",
+            "isbn10": "",
+            "isbn13": "9781464227318",
+            "title": "THE TENANT"
+        },
+        {
+            "authors": [
+                "Riley Sager"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9780593472408.jpg",
+            "isbn10": "",
+            "isbn13": "9780593472408",
+            "title": "WITH A VENGEANCE"
+        },
+        {
+            "authors": [
+                "Ali Hazelwood"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9798217187430.jpg",
+            "isbn10": "",
+            "isbn13": "9798217187430",
+            "title": "PROBLEMATIC SUMMER ROMANCE"
+        },
+        {
+            "authors": [
+                "Emily Henry"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9780593441299.jpg",
+            "isbn10": "",
+            "isbn13": "9780593441299",
+            "title": "GREAT BIG BEAUTIFUL LIFE"
+        },
+        {
+            "authors": [
+                "Michael Connelly"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9780316588485.jpg",
+            "isbn10": "",
+            "isbn13": "9780316588485",
+            "title": "NIGHTSHADE"
+        },
+        {
+            "authors": [
+                "Navessa Allen"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781638932239.jpg",
+            "isbn10": "",
+            "isbn13": "9781638932239",
+            "title": "LIGHTS OUT"
+        },
+        {
+            "authors": [
+                "S.A. Cosby"
+            ],
+            "image": "https://static01.nyt.com/bestsellers/images/9781250832061.jpg",
+            "isbn10": "",
+            "isbn13": "9781250832061",
+            "title": "KING OF ASHES"
+        }
+    ],
+    "limit": 15,
+    "page": 1,
+    "success": true,
+    "total_results": 15
+}
+```
+
+---
+
+### `POST /book`
+**Description:** Add a book to a specific shelf.
+**Permissions:** `book:add_to_shelf`
+**Request Body:**
+```json
+{
+    "authors": [ "Fernando Pessoa" ],
+    "image": "https://images.isbndb.com/covers/12/19/9789723711219.jpg",
+    "isbn13": "9789723711219",
+    "shelf": "want-to-read",
+    "title": "LIVRO DO DESASSOSSEGO"
+}
+```
+**Response:**
+```json
+{
+    "book": {
+        "authors": [
+            "Fernando Pessoa"
+        ],
+        "image": "https://images.isbndb.com/covers/12/19/9789723711219.jpg",
+        "isbn13": "9789723711219",
+        "shelf": "want-to-read",
+        "title": "LIVRO DO DESASSOSSEGO"
+    },
+    "success": true
+}
+```
+
+---
+
+### `GET /book/<string:book_id>`
+**Description:** Retrieve a book by its isbn10 or isbn13.
+**Path Parameters:**
+- `book_id`: The isbn10 or isbn13 of the book to retrieve.
+**Permissions:** `book:get_details`
+**Response:**
+```json
+{
+    "book": {
+        "authors": [
+            "Freida McFadden"
+        ],
+        "date_published": "2023-07-11",
+        "image": "https://images.isbndb.com/covers/7779693482312.jpg",
+        "isbn": "0349132615",
+        "isbn13": "9780349132617",
+        "language": "en",
+        "msrp": 0.0,
+        "pages": 352,
+        "publisher": "2023-07-11",
+        "rating": 0.0,
+        "shelf": null,
+        "subjects": [
+            "Fiction, thrillers, psychological",
+            "Fiction, thrillers, domestic"
+        ],
+        "subtitle": "The Housemaid's Secret",
+        "synopsis": "As he continues showing me their incredible penthouse apartment, I have a terrible feeling about the woman behind closed doors. But I can't risk losing this job – not if I want to keep my darkest secret safe . . .<br/>It's hard to find an employer who doesn't ask too many questions about my past. So I thank my lucky stars that the Garricks miraculously give me a job, cleaning their stunning penthouse with views across the city and preparing fancy meals in their shiny kitchen. I can work here for a while, stay quiet until I get what I want. It's almost perfect. But I still haven't met Mrs Garrick, or seen inside the guest bedroom. I'm sure I hear her crying. I notice spots of blood around the neck of her white nightgowns when I'm doing laundry. And one day I can't help but knock on the door. When it gently swings open, what I see inside changes everything....<br/>That's when I make a promise. After all, I've done this before. I can protect Mrs. Garrick while keeping my own secrets locked up safe. Douglas Garrick has done wrong. He is going to pay. It's simply a question of how far I'm willing to go....<br/>An unbelievably twisty read that will have you glued to the pages late into the night. Anyone who loves The Woman in the Window, The Wife Between Us and The Girl on the Train will be completely hooked!",
+        "title": "The Housemaid's Secret"
+    },
+    "success": true
+}
+```
+
+---
+### `DELETE /book/<string:book_id>`
+**Description:** Remove a book from a specific shelf.
+**Path Parameters:**
+- `book_id`: The isbn10 or isbn13 of the book to remove.
+**Permissions:** `book:delete_shelf`
+**Response:**
+```json
+{
+    "deleted": "9780349132617",
+    "success": true
+}
+```
+
+---
+### `PATCH /book/<string:book_id>`
+**Description:** Update a book's shelf.
+**Path Parameters:**
+- `book_id`: The isbn10 or isbn13 of the book to update.
+**Permissions:** `book:update_shelf`
+**Request Body:**
+- `shelf`: The destination shelf: one of `currently-reading`, `to-read`, or `read`.
+```json
+{
+    "shelf": "read"
+}
+```
+**Response:**
+```json
+{
+    "success": true
+}
+``` 

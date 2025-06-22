@@ -37,7 +37,7 @@ class BookService(BookServiceBase):
 
     def fetch_book(self, book_shelf: 'BookShelf', isbn10: str = None, isbn13: str = None) -> dict:
         """Fetches book details from the book service."""
-        book_id = self._get_book_id(isbn10, isbn13)
+        book_id = self._get_book_id(isbn10= isbn10, isbn13=isbn13)
 
         book = self.redis_client.get(book_id)
 
