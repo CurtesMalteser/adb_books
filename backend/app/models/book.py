@@ -22,6 +22,10 @@ def _get_from_authors_or_raise(key, d: dict[str, str]) -> list[str]:
 def _get_from_key_or_raise(key: str, d: dict[str, str]) -> str:
     value = d.get(key)
 
+    """if int cast to string"""
+    if isinstance(value, int):
+        return str(value)
+
     if isinstance(value, str):
         if bool(value.strip()) is False:
             raise Exception('Value of: {} cannot be empty'.format(key))
